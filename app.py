@@ -22,14 +22,11 @@ def extract_data_single(query_result, key):
         return dictionary[key]
     return None
 
-@app.route('/test')
-def test():
-    return 'test worked!'
-
 
 @app.route('/')
 def index():
-    user_id = session['id']
+    # if user has logged in send to home else to login
+    user_id = session.get('id')
     if user_id:
         name = db.execute('SELECT name FROM users WHERE id = ?', session['id'])
         name = extract_data_single(name, 'name')
@@ -39,6 +36,28 @@ def index():
     
     return redirect('/login')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # has submited the login form
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password_text = request.form.get('password')
+        if (not email) or (not password_text):
+            return render_template('error.html', message='Email or Password not entered')
+        # check if user is in db
+        user_info = db.execute('SELECT * FROM users WHERE email = ?', email)
+        if not user_info:
+            # nothing returned so user doesnt exist
+            return render_template('error.html', message='Invalid email, please use a person that already exists. For example check README')
+        # check users password
+        password_hash = user_info[0]['password_hash']
+        if not bcrypt.checkpw(password_text.encode("utf-8"), password_hash.encode("utf-8")):
+            # password incorect
+            return render_template('error.html', message='Incorrect password, check README example user')
+        # user is correct
+        return render_template('home.html')
+
+
+        
     return render_template('login.html')
