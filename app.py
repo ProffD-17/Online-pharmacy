@@ -125,5 +125,14 @@ def register():
 # show medicines in db
 @app.route('/medicines')
 def medicines():
+    # check for search and return results if any
+    search = request.args.get('search')
+    if search:
+        search_resuslts = db.execute('SELECT * FROM medicines WHERE name LIKE ?', '%' + search + '%')
+        if not search_resuslts:
+            return render_template('medicines.html', medicines=None, search_query=search)
+        return render_template('medicines.html', medicines=search_resuslts, search_query=search)
+
+    # if no search return all medicines
     medicines = db.execute('SELECT * FROM medicines')
     return render_template('medicines.html', medicines=medicines)

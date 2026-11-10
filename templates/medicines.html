@@ -2,24 +2,36 @@
 {% block body %}
 
     <h1 class="text-center">Medicines</h1>
-    <table class="table table-hover">
-        <thead>
-            <th>Name</th>
-            <th>More Info</th>
-        </thead>
-        <tbody>
-            {% for medicine in medicines %}
-                <tr>
-                    <td>{{ medicine['name'] }}</td>
-                    <td>
-                        <form action="/medicine_info" method="get">
-                            <input type="hidden" value="{{ medicine['id'] }}" name="medicine_id">
-                            <button class="btn btn-primary" type="submit">Info</button>
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <search>
+        <form action="/medicines" method="get" class="form-inline m-3">
+            <div class="form-group">
+                <input class="form-control" type="search" name="search" id="searchbar" {% if search_query %} value="{{ search_query }}" {% endif %}>
+                <button class="btn btn-primary m-2" type="submit">Search</button>
+            </div>           
+        </form>
+    </search>
+    {% if medicines %}
+        <table class="table table-hover">
+            <thead>
+                <th>Name</th>
+                <th>More Info</th>
+            </thead>
+            <tbody>
+                {% for medicine in medicines %}
+                    <tr>
+                        <td>{{ medicine['name'] }}</td>
+                        <td>
+                            <form action="/medicine_info" method="get">
+                                <input type="hidden" value="{{ medicine['id'] }}" name="medicine_id">
+                                <button class="btn btn-primary" type="submit">Info</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-center">No medicines found with the name {{ search_query }}</p>
+    {% endif %}
 
 {% endblock %}
