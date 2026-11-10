@@ -23,9 +23,22 @@ def extract_data_single(query_result, key):
     return None
 
 
+# takes a query(list of dicts) and turns it to a list of values from the dicts of the key specified
+def extract_data_to_list(query_result, key):
+    # check if there is anything in the query result
+    if not query_result:
+        return None
+    
+    values = []
+    # loop through and add to a list
+    for dictionary in query_result:
+        values.append(dictionary[key])
+    return values
+
+
+# if user has logged in send to home else to login
 @app.route('/')
 def index():
-    # if user has logged in send to home else to login
     user_id = session.get('id')
     if user_id:
         username = db.execute('SELECT username FROM users WHERE id = ?', session['id'])
@@ -40,6 +53,7 @@ def index():
     return redirect('/login')
 
 
+# login existing users 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # has submited the login form
@@ -74,6 +88,7 @@ def logout():
     return render_template('logout.html')
 
 
+# register new users in the db
 @app.route('/register', methods=['POST', 'GET'])
 def register():
     # return form if got here by link
@@ -105,3 +120,11 @@ def register():
     if success:
         return render_template('home.html', username=username)
     return render_template('error.html', message='Error inserting user into database.')
+
+
+# show medicines in db
+@app.route('/medicines')
+def medicines():
+    medicines = db.execute('SELECT * FROM medicines')
+    medicine_names = extract_data_to_list(medicines, 'name')
+    return render_template('medicines.html', medicine_names=medicine_names)

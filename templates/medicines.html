@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+    <h1>Medicine Names</h1>
+    <table>
+        <thead>
+            <th>Name</th>
+        </thead>
+        <tbody>
+            {% for name in medicine_names %}
+                <tr>
+                    <td>{{ name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
