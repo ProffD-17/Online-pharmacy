@@ -1,15 +1,22 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-    <h1>Medicine Names</h1>
-    <table>
+    <h1 class="text-center">Medicines</h1>
+    <table class="table table-hover">
         <thead>
             <th>Name</th>
+            <th>More Info</th>
         </thead>
         <tbody>
-            {% for name in medicine_names %}
+            {% for medicine in medicines %}
                 <tr>
-                    <td>{{ name }}</td>
+                    <td>{{ medicine['name'] }}</td>
+                    <td>
+                        <form action="/medicine_info" method="get">
+                            <input type="hidden" value="{{ medicine['id'] }}" name="medicine_id">
+                            <button class="btn btn-primary" type="submit">Info</button>
+                        </form>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

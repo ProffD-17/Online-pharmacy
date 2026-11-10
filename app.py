@@ -126,5 +126,4 @@ def register():
 @app.route('/medicines')
 def medicines():
     medicines = db.execute('SELECT * FROM medicines')
-    medicine_names = extract_data_to_list(medicines, 'name')
-    return render_template('medicines.html', medicine_names=medicine_names)
+    return render_template('medicines.html', medicines=medicines)

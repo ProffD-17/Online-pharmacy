@@ -1,22 +1,30 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-    <h1>Register</h1>
-    {% if email %}
-    <p>That account doesn't exist. Create one?</p>
-    {% endif %}
+    <div class="text-center">
+        <h1>Register</h1>
+        {% if email %}
+        <p>That account doesn't exist. Create one?</p>
+        {% endif %}
+    </div>
 
-    <form action="/register" method="post">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" value="{{ email }}" required>
-
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" value="{{ password }}" required>
-
-        <label for="username">Username</label>
-        <input type="username" id="username" name="username" required>
-
-        <button type="submit"">Create account</button>
+    <form action="/register" method="post" class="m-5">
+        <div class="form-group">
+            <label class="form-input" for="email">Email</label>
+            <input class="form-control" type="email" id="email" name="email" value="{{ email }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-input" for="password">Password</label>
+            <input class="form-control" type="password" id="password" name="password" value="{{ password }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-input" for="username">Username</label>
+            <input class="form-control" type="username" id="username" name="username" required>
+        </div>
+        
+        <button class="btn btn-primary" type="submit"">Create account</button>
     </form>
 
 {% endblock %}

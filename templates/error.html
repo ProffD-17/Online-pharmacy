@@ -1,8 +1,9 @@
 {% extends 'layout.html' %}
 {% block body %}
-
-    <h1>Something went wrong</h1>
-    <p>{{ message }}</p>
-    <a href="/">Reload</a>
-
+    <div class="text-center">
+        <h1>Something went wrong</h1>
+        <p>{{ message }}</p>
+        <a class="btn btn-primary" href="/login">Try again</a>
+    </div>
+    
 {% endblock %}

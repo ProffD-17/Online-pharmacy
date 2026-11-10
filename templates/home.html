@@ -1,10 +1,14 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-    <h1>Online Pharmacy</h1>
-    <p>Welome {{ username }}</p>
+    <h1 class="text-center">Online Pharmacy</h1>
+    <p class="text-center">Welome {{ username }}</p>
 
-    <a href="/logout">Logout</a>
-    <a href="/medicines">Medicines</a>
+    <div class="flex-center">
+        <a class="btn btn-primary" href="/logout">Logout</a>
+        <a class="btn btn-primary" href="/medicines">Medicines</a>
+    </div>
+    
+    
 
 {% endblock %}
