@@ -36,6 +36,21 @@ def extract_data_to_list(query_result, key):
     return values
 
 
+# databases often store string data like 'this_with_underscores' but I cant display that to the user so this 
+# function turns that format to 'This without underscores'
+def format_string_data(data_string):
+    # replace underscores
+    formated_string = ''
+    for char in data_string:
+        if char == '_':
+            formated_string += ' '
+        else:
+            formated_string += char
+    # capatilize first letter
+    formated_string = formated_string[0].upper() + formated_string[1:]
+    return formated_string
+
+
 # if user has logged in send to home else to login
 @app.route('/')
 def index():
@@ -165,5 +180,12 @@ def show_medicine_info():
     elif prescription_needed == 0:
         prescription_required = False
         print('prescription not needed')
+
+    # check prescription category
+    category_id = db.execute('SELECT category_id FROM medicines WHERE id = ?', medicine_id)
+    category_id = extract_data_single(category_id, 'category_id')
+    category_name = db.execute('SELECT name FROM medicine_categories WHERE id = ?', category_id)
+    category_name = extract_data_single(category_name, 'name')
+    category_name = format_string_data(category_name)
     
-    return render_template('medicine_info.html', medicine_info=medicine_info, dosage_info=dosage_info, prescription_required=prescription_required)
+    return render_template('medicine_info.html', medicine_info=medicine_info, dosage_info=dosage_info, prescription_required=prescription_required, category=category_name)

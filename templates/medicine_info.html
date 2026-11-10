@@ -20,6 +20,10 @@
             No
             {% endif %}
         </p>
+        {% if category %}
+            <h2>Category</h2>
+            <p>{{ category }}</p>
+        {% endif %}
     </div>
     
 {% endblock %}
