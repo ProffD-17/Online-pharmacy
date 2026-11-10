@@ -128,6 +128,7 @@ def medicines():
     # check for search and return results if any
     search = request.args.get('search')
     if search:
+        # use LIKE to return search results containing the query
         search_resuslts = db.execute('SELECT * FROM medicines WHERE name LIKE ?', '%' + search + '%')
         if not search_resuslts:
             return render_template('medicines.html', medicines=None, search_query=search)
@@ -136,3 +137,33 @@ def medicines():
     # if no search return all medicines
     medicines = db.execute('SELECT * FROM medicines')
     return render_template('medicines.html', medicines=medicines)
+
+# show information for a medicine
+@app.route('/medicine_info')
+def show_medicine_info():
+    # check valid medicine id is given
+    medicine_id = request.args.get('medicine_id')
+    if not medicine_id:
+        return render_template('error.html', message='No medicine ID provided')
+    medicine_info = db.execute('SELECT * FROM medicines WHERE id = ?', medicine_id)
+    if not medicine_info:
+        return render_template('error.html', message='Invlaid medicine ID')
+    # get the info on the medicine
+    medicine_info = medicine_info[0]
+    # get the dosage info
+    dosage_info = db.execute('SELECT * FROM dosage_forms WHERE id = ?', medicine_info['dosage_form_id'])
+    if dosage_info:
+        dosage_info = dosage_info[0]
+    else: dosage_info = None
+    # check if prescription is required
+    prescription_required = 'unknown'
+    prescription_needed = db.execute('SELECT requires_prescription FROM medicines WHERE id = ?', medicine_id)
+    prescription_needed = extract_data_single(prescription_needed, 'requires_prescription')
+    if prescription_needed == 1:
+        prescription_required = True
+        print('prescription needed')
+    elif prescription_needed == 0:
+        prescription_required = False
+        print('prescription not needed')
+    
+    return render_template('medicine_info.html', medicine_info=medicine_info, dosage_info=dosage_info, prescription_required=prescription_required)

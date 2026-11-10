@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+    <div class="text-center">
+        <h1>{{ medicine_info['name'] }}</h1>
+        <h2>Price</h2>
+        <p>£{{ medicine_info['price'] }}</p>
+        {% if dosage_info %}
+            <h2>Dosage</h2>
+            <p>Mehtod: {{ dosage_info['method'] }}</p>
+            <p>Description: {{ dosage_info['description'] }}</p>
+        {% endif %}
+        <h2>Prescription required?</h2>
+        <p>
+            {% if prescription_required == 'unknown' %}
+            Unknown
+            {% elif prescription_required == True %}
+            Yes
+            {% else %}
+            No
+            {% endif %}
+        </p>
+    </div>
+    
+{% endblock %}
