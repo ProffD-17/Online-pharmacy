@@ -185,18 +185,36 @@ def show_medicine_info():
 
 
 # display information about a users account: Role, username, email, delete account and allow them to edit it
-@app.route('/account')
+@app.route('/account', methods=['POST', 'GET'])
 def account():
-    # get users id
+    if request.method == 'GET':
+        # get users id
+        user_id = session.get('id')
+        if not user_id:
+            return redirect('/login')
+        # get account info from users table
+        account_info = users_db.execute('SELECT * FROM users WHERE id = ?', user_id)
+        if not account_info:
+            return render_template('error.html', message='Account could not be found')
+        account_info = account_info[0]
+        # get users role
+        role_id = extract_data_single(users_db.execute('SELECT role_id FROM users WHERE id = ?', user_id), 'role_id')
+        role = extract_data_single(users_db.execute('SELECT name FROM roles WHERE id = ?', role_id), 'name').capitalize()
+        # return edit form if requested
+        if request.args.get('action') == 'edit':
+            return render_template('account.html', account_info=account_info, action='edit', role=role)
+        return render_template('account.html', account_info=account_info, action='view', role=role)
+
+    # else post
+    # change account info
     user_id = session.get('id')
     if not user_id:
         return redirect('/login')
-    # get account info from users table
-    account_info = users_db.execute('SELECT * FROM users WHERE id = ?', user_id)
-    if not account_info:
-        return render_template('error.html', message='Account could not be found')
-    account_info = account_info[0]
-    # get users role
-    role_id = extract_data_single(users_db.execute('SELECT role_id FROM users WHERE id = ?', user_id), 'role_id')
-    role = extract_data_single(users_db.execute('SELECT name FROM roles WHERE id = ?', role_id), 'name').capitalize()
-    return render_template('account.html', account_info=account_info, action='view', role=role)
+    email = request.form.get('email')
+    username = request.form.get('username')
+    if (not email) or (not username):
+        return render_template('error.html', message='Not enough information provided')
+    success = users_db.execute('UPDATE users SET username = ?, email = ? WHERE id = ?', username, email, user_id)
+    if not success:
+        return render_template('error.html', message='Information could not be updated.')
+    return redirect('/account')
