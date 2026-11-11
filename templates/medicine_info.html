@@ -1,26 +1,75 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-    <div class="text-center m-3">
+    <div class="m-3">
+        <h1 class="text-center">{{ medicine_info['generic_name'] }}</h1>
         <section>
-            <h1>{{ medicine_info['generic_name'] }}</h1>
-            <h2>Dose</h2>
-            <p>{{ medicine_info['dose'] }}</p>
-            <h2>Possible side effects</h2>
-            <p>{{ medicine_info['side_effect'] }}</p>
-            <h2>Pregnancy Advice</h2>
-            <p>{{ pregnancy_advice }}</p>
+            <h2 class="text-center">General information</h2>
+            <h3>
+                <a class="underlined black-text black-text" data-toggle="collapse" href="#dose-info" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Dose
+                </a>
+            </h3>
+            <div class="collapse" id="dose-info">
+                <p>{{ medicine_info['dose'] }}</p>
+            </div>
+            
+            <h3>
+                <a class="underlined black-text" data-toggle="collapse" href="#side-effects" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Possible side effects
+                </a>
+            </h3>
+            <div class="collapse" id="side-effects">
+                <p>{{ medicine_info['side_effect'] }}</p>
+            </div>
+            
+            <h3>
+                <a class="underlined black-text" data-toggle="collapse" href="#pregnancy" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Pregnance advice
+                </a>
+            </h3>
+            <div class="collapse" id="pregnancy">
+                <p>{{ pregnancy_advice }}</p>
+            </div>
         </section>
         <section>
-            <h2>Information for doctors</h2>
-            <h3>Precaution</h3>
-            <p>{{ medicine_info['precaution'] }}</p>
-            <h3>Indication</h3>
-            <p>{{ medicine_info['indication'] }}</p>
-            <h3>Interaction</h3>
-            <p>{{ medicine_info['interaction'] }}</p>
-            <h3>Mode of action</h3>
-            <p>{{ medicine_info['mode_of_action'] }}</p>
+            <h2 class="text-center">Information for doctors</h2>
+
+            <h3>
+                <a class="underlined black-text" data-toggle="collapse" href="#precaution" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Precaution
+                </a>
+            </h3>
+            <div class="collapse" id="precaution">
+                <p>{{ medicine_info['precaution'] }}</p>
+            </div>
+            
+            <h3>
+                <a class="underlined black-text" data-toggle="collapse" href="#indication" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Indication
+                </a>
+            </h3>
+            <div class="collapse" id="indication">
+                 <p>{{ medicine_info['indication'] }}</p>
+            </div>
+           
+            <h3>
+                <a class="underlined black-text" data-toggle="collapse" href="#interaction" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Interaction
+                </a>
+            </h3>
+            <div class="collapse" id="interaction">
+                <p>{{ medicine_info['interaction'] }}</p>
+            </div>
+            
+            <h3>
+                <a class="underlined black-text" data-toggle="collapse" href="#mode-of-action" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Mode of action
+                </a>
+            </h3>
+            <div class="collapse" id="mode-of-action">
+                <p>{{ medicine_info['mode_of_action'] }}</p>
+            </div>
         </section>
     </div>
     
