@@ -171,6 +171,10 @@ def show_medicine_info():
         return render_template('error.html', message='Invlaid medicine ID')
     # get the info on the medicine
     medicine_info = medicine_info[0]
+    # get pregnancy category
+    pregnancy_category = medicine_info['pregnancy_category_id']
+    pregnancy_category = db.execute('SELECT pregnancy_description FROM pregnancy_category WHERE pregnancy_id = ?', pregnancy_category)
+    pregnancy_category = extract_data_single(pregnancy_category, 'pregnancy_description')
     
     
-    return render_template('medicine_info.html', medicine_info=medicine_info)
+    return render_template('medicine_info.html', medicine_info=medicine_info, pregnancy_advice=pregnancy_category)
