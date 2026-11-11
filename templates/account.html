@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+    <h1>Account: {{ account_info['username'] }}</h1>
+    {% if action == 'view' %}
+        <p>Username: {{ account_info['username'] }}</p>
+        <p>Email: {{ account_info['email'] }}</p>
+        <p>Status: {{ role }}</p>
+    
+    {% endif %}
+
+{% endblock %}

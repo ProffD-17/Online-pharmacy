@@ -16,5 +16,5 @@ CREATE TABLE "roles" (
     "name" TEXT NOT NULL
 );
 
-INSERT INTO roles ("id", "name") VALUES (1, 'user');
+INSERT INTO roles ("id", "name") VALUES (1, 'patient');
 INSERT INTO roles ("id", "name") VALUES (2, 'doctor');

@@ -6,8 +6,8 @@ import bcrypt # for password hashing
 
 # configure app
 app = Flask(__name__)
-med_db = SQL("sqlite:///medicine.db")
-users_db = SQL("sqlite:///users.db")
+med_db = SQL("sqlite:///databases/medicine.db")
+users_db = SQL("sqlite:///databases/users.db")
 
 #configure session
 app.config["SESSION_PERMANENT"] = False
@@ -139,6 +139,9 @@ def register():
     # insert info into db
     success = users_db.execute('INSERT INTO users (username, email, password_hash, is_active) VALUES (?, ?, ?, ?)', username, email, password_hash, 1)
     if success:
+        # store user id in session
+        user_id = extract_data_single(users_db.execute('SELECT id FROM users WHERE email = ?', email), 'id')
+        session['id'] = user_id
         return render_template('home.html', username=username)
     return render_template('error.html', message='Error inserting user into database.')
 
@@ -179,3 +182,21 @@ def show_medicine_info():
     
     
     return render_template('medicine_info.html', medicine_info=medicine_info, pregnancy_advice=pregnancy_category)
+
+
+# display information about a users account: Role, username, email, delete account and allow them to edit it
+@app.route('/account')
+def account():
+    # get users id
+    user_id = session.get('id')
+    if not user_id:
+        return redirect('/login')
+    # get account info from users table
+    account_info = users_db.execute('SELECT * FROM users WHERE id = ?', user_id)
+    if not account_info:
+        return render_template('error.html', message='Account could not be found')
+    account_info = account_info[0]
+    # get users role
+    role_id = extract_data_single(users_db.execute('SELECT role_id FROM users WHERE id = ?', user_id), 'role_id')
+    role = extract_data_single(users_db.execute('SELECT name FROM roles WHERE id = ?', role_id), 'name').capitalize()
+    return render_template('account.html', account_info=account_info, action='view', role=role)
