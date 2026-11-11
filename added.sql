@@ -3,7 +3,7 @@
 CREATE TABLE "users" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "email" TEXT NOT NULL UNIQUE,
-    "is_active" INTEGER NOT NULL,
+    "is_active" INTEGER NOT NULL DEFAULT 1,
     "password_hash" TEXT NOT NULL,
     "username" TEXT NOT NULL UNIQUE,
     "role_id" INTEGER DEFAULT 1,

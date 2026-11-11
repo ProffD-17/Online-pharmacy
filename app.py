@@ -6,7 +6,7 @@ import bcrypt # for password hashing
 
 # configure app
 app = Flask(__name__)
-db = SQL("sqlite:///pharmacy.db")
+db = SQL("sqlite:///medicine.db")
 
 #configure session
 app.config["SESSION_PERMANENT"] = False
@@ -88,6 +88,11 @@ def login():
         if not bcrypt.checkpw(password_text.encode("utf-8"), password_hash):
             # password incorect
             return render_template('error.html', message='Incorrect password')
+        # check if account is active
+        active = db.execute('SELECT is_active FROM users WHERE id = ?', user_info['id'])
+        active = extract_data_single(active, 'is_active')
+        if active == 0:
+            return render_template('error.html', message='Account is no longer active.')
         # user is correct
         # store id in session
         session['id'] = user_info['id']
