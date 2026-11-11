@@ -1,4 +1,4 @@
--- all the sql I added to the database
+-- the SQL I wrote to make th users db
 -- users table
 CREATE TABLE "users" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
