@@ -246,3 +246,9 @@ def account():
         return redirect('/account')
     # not get and none of the correct info passed in post
     return render_template('error.html', message='Route does not support this method')
+
+
+@app.route('/make_prescription', methods=['POST'])
+def make_prescription():
+    if request.method == 'GET':
+        return render_template('make_prescription.html')
