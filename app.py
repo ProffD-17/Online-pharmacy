@@ -14,6 +14,10 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+
+# contansts
+CHANGE_ROLE_PASSWORD = 'Terra' # this is secure to store this here ... right?
+
 # the db.execute() function returns the info as a list of dicts and this takes that and turns it
 # into just the information with the key provided.
 # assumes only one dict is in the list.
@@ -205,16 +209,41 @@ def account():
             return render_template('account.html', account_info=account_info, action='edit', role=role)
         return render_template('account.html', account_info=account_info, action='view', role=role)
 
-    # else post
     # change account info
+    # get user_id
     user_id = session.get('id')
     if not user_id:
         return redirect('/login')
+    # check what info is being requested to be changed
+    # account info
     email = request.form.get('email')
-    username = request.form.get('username')
-    if (not email) or (not username):
-        return render_template('error.html', message='Not enough information provided')
-    success = users_db.execute('UPDATE users SET username = ?, email = ? WHERE id = ?', username, email, user_id)
-    if not success:
-        return render_template('error.html', message='Information could not be updated.')
-    return redirect('/account')
+    if email:
+        # get info from form
+        username = request.form.get('username')
+        if (not email) or (not username):
+            return render_template('error.html', message='Not enough information provided')
+        
+    
+        success = users_db.execute('UPDATE users SET username = ?, email = ? WHERE id = ?', username, email, user_id)
+        if not success:
+            return render_template('error.html', message='Information could not be updated.')
+        return redirect('/account')
+
+    # role
+    role = request.form.get('role')
+    if role:
+        # validate password
+        role_password = request.form.get('role_password')
+        if not role_password == CHANGE_ROLE_PASSWORD:
+            return render_template('error.html', message='Incorrect password, If you are a reviewer check message I sent when submitting on Terra to reviewers for password.')
+        # get id of requested role
+        role_id = extract_data_single(users_db.execute('SELECT id FROM roles WHERE name = ?', role), 'id')
+        if not role_id:
+            return render_template('error.html', message='Role does not exist')
+        # change info in db and return status
+        success = users_db.execute('UPDATE users SET role_id = ? WHERE id = ?', role_id, user_id)
+        if not success:
+            return render_template('error.html', message='Could not update role.')
+        return redirect('/account')
+    # not get and none of the correct info passed in post
+    return render_template('error.html', message='Route does not support this method')
