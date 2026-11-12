@@ -1,3 +1,5 @@
+-- db I got from https://github.com/WSAyan/medicinedb/tree/main
+
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 CREATE TABLE IF NOT EXISTS "company_name" (company_id TEXT,  company_name TEXT,  company_order TEXT);

@@ -6,8 +6,7 @@ import bcrypt # for password hashing
 
 # configure app
 app = Flask(__name__)
-med_db = SQL("sqlite:///databases/medicine.db")
-users_db = SQL("sqlite:///databases/users.db")
+db = SQL("sqlite:///databases/pharmacy.db")
 
 #configure session
 app.config["SESSION_PERMANENT"] = False
@@ -61,7 +60,7 @@ def format_string_data(data_string):
 def index():
     user_id = session.get('id')
     if user_id:
-        username = users_db.execute('SELECT username FROM users WHERE id = ?', session['id'])
+        username = db.execute('SELECT username FROM users WHERE id = ?', session['id'])
         if  username:
             username = extract_data_single(username, 'username')
             print(username)
@@ -83,7 +82,7 @@ def login():
         if (not email) or (not password_text):
             return render_template('error.html', message='Email or Password not entered')
         # check if user is in db
-        user_info = users_db.execute('SELECT * FROM users WHERE email = ?', email)
+        user_info = db.execute('SELECT * FROM users WHERE email = ?', email)
         if not user_info:
             # nothing returned so user doesnt exist
             return render_template('register.html', email=email, password=password_text)
@@ -94,7 +93,7 @@ def login():
             # password incorect
             return render_template('error.html', message='Incorrect password')
         # check if account is active
-        active = users_db.execute('SELECT is_active FROM users WHERE id = ?', user_info['id'])
+        active = db.execute('SELECT is_active FROM users WHERE id = ?', user_info['id'])
         active = extract_data_single(active, 'is_active')
         if active == 0:
             return render_template('error.html', message='Account is no longer active.')
@@ -130,10 +129,10 @@ def register():
         return render_template('error.html', message='Not enough information provided.')
     
     # check email and username are unique
-    identical_email = users_db.execute('SELECT * FROM users WHERE email = ?', email)
+    identical_email = db.execute('SELECT * FROM users WHERE email = ?', email)
     if identical_email:
         return render_template('error.html', message='Email already in use.')
-    identical_username = users_db.execute('SELECT * FROM users WHERE username = ?', username)
+    identical_username = db.execute('SELECT * FROM users WHERE username = ?', username)
     if identical_username:
         return render_template('error.html', message='Username already in use.')
     
@@ -141,10 +140,10 @@ def register():
     password_hash = bcrypt.hashpw(password=password_text.encode("utf-8"), salt=bcrypt.gensalt())
 
     # insert info into db
-    success = users_db.execute('INSERT INTO users (username, email, password_hash, is_active) VALUES (?, ?, ?, ?)', username, email, password_hash, 1)
+    success = db.execute('INSERT INTO users (username, email, password_hash, is_active) VALUES (?, ?, ?, ?)', username, email, password_hash, 1)
     if success:
         # store user id in session
-        user_id = extract_data_single(users_db.execute('SELECT id FROM users WHERE email = ?', email), 'id')
+        user_id = extract_data_single(db.execute('SELECT id FROM users WHERE email = ?', email), 'id')
         session['id'] = user_id
         return render_template('home.html', username=username)
     return render_template('error.html', message='Error inserting user into database.')
@@ -157,13 +156,13 @@ def medicines():
     search = request.args.get('search')
     if search:
         # use LIKE to return search results containing the query
-        search_resuslts = med_db.execute('SELECT * FROM generic WHERE generic_name LIKE ?', '%' + search + '%')
+        search_resuslts = db.execute('SELECT * FROM generic WHERE generic_name LIKE ?', '%' + search + '%')
         if not search_resuslts:
             return render_template('medicines.html', medicines=None, search_query=search)
         return render_template('medicines.html', medicines=search_resuslts, search_query=search)
 
     # if no search return all medicines
-    medicines = med_db.execute('SELECT * FROM generic')
+    medicines = db.execute('SELECT * FROM generic')
     return render_template('medicines.html', medicines=medicines)
 
 # TODO: make this work with new db
@@ -174,14 +173,14 @@ def show_medicine_info():
     generic_id = request.args.get('medicine_id')
     if not generic_id:
         return render_template('error.html', message='No medicine ID provided')
-    medicine_info = med_db.execute('SELECT * FROM generic WHERE generic_id = ?', generic_id)
+    medicine_info = db.execute('SELECT * FROM generic WHERE generic_id = ?', generic_id)
     if not medicine_info:
         return render_template('error.html', message='Invlaid medicine ID')
     # get the info on the medicine
     medicine_info = medicine_info[0]
     # get pregnancy category
     pregnancy_category = medicine_info['pregnancy_category_id']
-    pregnancy_category = med_db.execute('SELECT pregnancy_description FROM pregnancy_category WHERE pregnancy_id = ?', pregnancy_category)
+    pregnancy_category = db.execute('SELECT pregnancy_description FROM pregnancy_category WHERE pregnancy_id = ?', pregnancy_category)
     pregnancy_category = extract_data_single(pregnancy_category, 'pregnancy_description')
     
     
@@ -197,13 +196,13 @@ def account():
         if not user_id:
             return redirect('/login')
         # get account info from users table
-        account_info = users_db.execute('SELECT * FROM users WHERE id = ?', user_id)
+        account_info = db.execute('SELECT * FROM users WHERE id = ?', user_id)
         if not account_info:
             return render_template('error.html', message='Account could not be found')
         account_info = account_info[0]
         # get users role
-        role_id = extract_data_single(users_db.execute('SELECT role_id FROM users WHERE id = ?', user_id), 'role_id')
-        role = extract_data_single(users_db.execute('SELECT name FROM roles WHERE id = ?', role_id), 'name').capitalize()
+        role_id = extract_data_single(db.execute('SELECT role_id FROM users WHERE id = ?', user_id), 'role_id')
+        role = extract_data_single(db.execute('SELECT name FROM roles WHERE id = ?', role_id), 'name').capitalize()
         # return edit form if requested
         if request.args.get('action') == 'edit':
             return render_template('account.html', account_info=account_info, action='edit', role=role)
@@ -224,7 +223,7 @@ def account():
             return render_template('error.html', message='Not enough information provided')
         
     
-        success = users_db.execute('UPDATE users SET username = ?, email = ? WHERE id = ?', username, email, user_id)
+        success = db.execute('UPDATE users SET username = ?, email = ? WHERE id = ?', username, email, user_id)
         if not success:
             return render_template('error.html', message='Information could not be updated.')
         return redirect('/account')
@@ -237,11 +236,11 @@ def account():
         if not role_password == CHANGE_ROLE_PASSWORD:
             return render_template('error.html', message='Incorrect password, If you are a reviewer check message I sent when submitting on Terra to reviewers for password.')
         # get id of requested role
-        role_id = extract_data_single(users_db.execute('SELECT id FROM roles WHERE name = ?', role), 'id')
+        role_id = extract_data_single(db.execute('SELECT id FROM roles WHERE name = ?', role), 'id')
         if not role_id:
             return render_template('error.html', message='Role does not exist')
         # change info in db and return status
-        success = users_db.execute('UPDATE users SET role_id = ? WHERE id = ?', role_id, user_id)
+        success = db.execute('UPDATE users SET role_id = ? WHERE id = ?', role_id, user_id)
         if not success:
             return render_template('error.html', message='Could not update role.')
         return redirect('/account')

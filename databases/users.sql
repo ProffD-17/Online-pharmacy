@@ -1,4 +1,4 @@
--- the SQL I wrote to make th users db
+-- the SQL I wrote to add on to the db
 -- users table
 CREATE TABLE "users" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,3 +18,8 @@ CREATE TABLE "roles" (
 
 INSERT INTO roles ("id", "name") VALUES (1, 'patient');
 INSERT INTO roles ("id", "name") VALUES (2, 'doctor');
+
+
+-- prescriptions
+--CREATE TABLE "prescritions" (
+--    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
