@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, session, redirect # flask fun
 from flask_session import Session # for tracking if users are logged in
 from cs50 import SQL # for interacting with databases
 import bcrypt # for password hashing
+from datetime import datetime # for getting todays date
 
 # configure app
 app = Flask(__name__)
@@ -123,9 +124,11 @@ def register():
     username = request.form.get('username')
     email = request.form.get('email')
     password_text = request.form.get('password')
+    firstname = request.form.get('firstname')
+    lastname = request.form.get('lastname')
 
     # check all info is there
-    if (not username) or (not email) or (not password_text):
+    if (not username) or (not email) or (not password_text) or (not firstname) or (not lastname):
         return render_template('error.html', message='Not enough information provided.')
     
     # check email and username are unique
@@ -140,7 +143,7 @@ def register():
     password_hash = bcrypt.hashpw(password=password_text.encode("utf-8"), salt=bcrypt.gensalt())
 
     # insert info into db
-    success = db.execute('INSERT INTO users (username, email, password_hash, is_active) VALUES (?, ?, ?, ?)', username, email, password_hash, 1)
+    success = db.execute('INSERT INTO users (username, email, password_hash, is_active, firstname, lastname) VALUES (?, ?, ?, ?, ?, ?)', username, email, password_hash, 1, firstname, lastname)
     if success:
         # store user id in session
         user_id = extract_data_single(db.execute('SELECT id FROM users WHERE email = ?', email), 'id')
@@ -151,7 +154,7 @@ def register():
 
 # show medicines in db
 @app.route('/medicines')
-def medicines():
+def show_medicines():
     # check for search and return results if any
     search = request.args.get('search')
     if search:
@@ -248,7 +251,66 @@ def account():
     return render_template('error.html', message='Route does not support this method')
 
 
-@app.route('/make_prescription', methods=['POST'])
+@app.route('/make_prescription', methods=['GET', 'POST'])
 def make_prescription():
+    # get user id and check user is logged in
+    user_id = session.get('id')
+    if not user_id:
+        return redirect('/login')   
+    # return create prescription form if got here by link
     if request.method == 'GET':
-        return render_template('make_prescription.html')
+        medicines = db.execute('SELECT * FROM generic')
+        return render_template('make_prescription.html', medicines=medicines, user_id=user_id)
+    # create a prescription with info from the form
+
+    # VALIDATE FORM INPUT
+    # get info from form
+    patient_firstname = request.form.get('patient_firstname')
+    patient_lastname = request.form.get('patient_lastname')
+    repeating = request.form.get('repeating')
+    repeating_start_date = request.form.get('repeating_start_date')
+    repeating_end_date = request.form.get('repeating_end_date')
+    repeat_interval = request.form.get('repeat_interval')
+    medicine_id = request.form.get('medicine_id')
+    creator_id = request.form.get('creator_id')
+
+    # make sure creator is a doctor
+    role_id = extract_data_single(db.execute('SELECT role_id FROM users WHERE id = ?', creator_id), 'role_id')
+    role = extract_data_single(db.execute('SELECT name FROM roles WHERE id = ?', role_id), 'name')
+    if role != 'doctor':
+        return render_template('error.html', message='Need doctor privileges to create prescriptions.')
+    # make sure doctor account is active
+    active = extract_data_single(db.execute('SELECT is_active FROM users WHERE id = ?', creator_id), 'is_active')
+    if active != 1:
+        return render_template('error.html', message='Your account is no longer active.')
+
+    # check patient is in db
+    patient_info = db.execute('SELECT * FROM users WHERE firstname = ? AND lastname = ?', patient_firstname, patient_lastname)
+    if not patient_info:
+        return render_template('error.html', message='Patient does not exist.')
+    # check patient is active
+    active = extract_data_single(patient_info, 'is_active')
+    if active != 1:
+        return render_template('error.html', message='Patient account is no longer active.')
+
+    # check start and end times are after current time
+    if repeating:
+        # get current date in datetime.date type
+        current_time = datetime.today().date()
+        # convert date inputs from strings to datetime.date type
+        repeating_start_date = datetime.strptime(repeating_start_date, '%Y-%m-%d').date()
+        repeating_end_date = datetime.strptime(repeating_end_date, '%Y-%m-%d').date()
+        # check dates are after or equal to current day
+        if repeating_start_date < current_time:
+            return render_template('error.html', message='Repeating start date must be today or later.')
+        if repeating_end_date < current_time:
+            return render_template('error.html', message='Repeating end date must be today or later.')
+        # check repeating interval is valid
+        if not (repeat_interval >= 0):
+            return render_template('error.html', message='Repeating interval must be 0(for no interval) or greater. Interval is in days.')
+
+    # check medicine is valid 
+    if not db.execute('SELECT * FROM generic WHERE generic_id = ?', medicine_id):
+        return render_template('error.html', message='Medicine does not exist.')
+    return render_template('debug.html', m1='Valid prescription create request.')
+    

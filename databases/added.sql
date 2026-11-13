@@ -28,6 +28,10 @@ CREATE TABLE "prescritions" (
     "patient_id" INTEGER NOT NULL,
     "medicine_id" INTEGER NOT NULL,
     "doctor_id" INTEGER NOT NULL,
+    "repeating" INTEGER NOT NULL DEFAULT 0,
+    "repeating_start" TEXT,
+    "repeating_end" TEXT,
+    "repeating_interval" INTEGER,
     FOREIGN KEY (patient_id) REFERENCES users(id),
     FOREIGN KEY (doctor_id) REFERENCES users(id),
     FOREIGN KEY (medicine_id) REFERENCES generic(generic_id)
