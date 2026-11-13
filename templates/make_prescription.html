@@ -30,7 +30,7 @@
             <label for="medicine_name" class="form-label">Medicine name</label>
             <select name="medicine_id" id="medicine-name">
                 {% for medicine in medicines %}
-                    <option value="{{ medicine['id'] }}">{{ medicine['generic_name'] }}</option>
+                    <option value="{{ medicine['generic_id'] }}">{{ medicine['generic_name'] }}</option>
                 {% endfor %}
             </select>
         </div>

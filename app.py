@@ -295,9 +295,13 @@ def make_prescription():
 
     # check start and end times are after current time
     if repeating:
+        if (not repeating_end_date) or (not repeating_start_date) or (not repeat_interval):
+            return render_template('error.html', message='Please provide start date, end date and repeat interval for repeating prescription.')
         # get current date in datetime.date type
         current_time = datetime.today().date()
         # convert date inputs from strings to datetime.date type
+        if (len(repeating_start_date) > 10) or (len(repeating_end_date) > 10):
+            return render_template('error.html', message='Latest valid date is 31/12/9999.')
         repeating_start_date = datetime.strptime(repeating_start_date, '%Y-%m-%d').date()
         repeating_end_date = datetime.strptime(repeating_end_date, '%Y-%m-%d').date()
         # check dates are after or equal to current day
@@ -306,10 +310,12 @@ def make_prescription():
         if repeating_end_date < current_time:
             return render_template('error.html', message='Repeating end date must be today or later.')
         # check repeating interval is valid
+        repeat_interval = int(repeat_interval)
         if not (repeat_interval >= 0):
             return render_template('error.html', message='Repeating interval must be 0(for no interval) or greater. Interval is in days.')
 
     # check medicine is valid 
+    print(medicine_id)
     if not db.execute('SELECT * FROM generic WHERE generic_id = ?', medicine_id):
         return render_template('error.html', message='Medicine does not exist.')
     return render_template('debug.html', m1='Valid prescription create request.')
