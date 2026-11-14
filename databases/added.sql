@@ -1,7 +1,7 @@
 -- the SQL I wrote to add on to the db
 -- users table
 CREATE TABLE "users" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user_id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "email" TEXT NOT NULL UNIQUE,
     "is_active" INTEGER NOT NULL DEFAULT 1,
     "password_hash" TEXT NOT NULL,
@@ -14,17 +14,17 @@ CREATE TABLE "users" (
 
 -- roles table
 CREATE TABLE "roles" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "role_id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL
 );
 
-INSERT INTO roles ("id", "name") VALUES (1, 'patient');
-INSERT INTO roles ("id", "name") VALUES (2, 'doctor');
+INSERT INTO roles ("role_id", "name") VALUES (1, 'patient');
+INSERT INTO roles ("role_id", "name") VALUES (2, 'doctor');
 
 
 -- prescriptions
 CREATE TABLE "prescriptions" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "prescripton_id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "patient_id" INTEGER NOT NULL,
     "medicine_id" INTEGER NOT NULL,
     "doctor_id" INTEGER NOT NULL,

@@ -15,7 +15,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 
-# contansts
+# constansts
 CHANGE_ROLE_PASSWORD = 'Terra' # this is secure to store this here ... right?
 
 # the db.execute() function returns the info as a list of dicts and this takes that and turns it
@@ -60,13 +60,13 @@ def format_string_data(data_string):
 @app.route('/')
 def index():
     # check if user is logged in
-    user_id = session.get('id')
+    user_id = session.get('user_id')
     if user_id:
-        user_info = db.execute('SELECT * FROM users WHERE id = ?', session['id'])
+        user_info = db.execute('SELECT * FROM users WHERE user_id = ?', session['user_id'])
         if  user_info:
             # get users username and role
             username = extract_data_single(user_info, 'username')
-            role = extract_data_single(db.execute('SELECT name FROM roles WHERE id = ?', extract_data_single(user_info, 'role_id')), 'name')
+            role = extract_data_single(db.execute('SELECT name FROM roles WHERE role_id = ?', extract_data_single(user_info, 'role_id')), 'name')
         else:
             return redirect('/login')
         return render_template('home.html', username=username, role=role)
@@ -95,13 +95,13 @@ def login():
             # password incorect
             return render_template('error.html', message='Incorrect password')
         # check if account is active
-        active = db.execute('SELECT is_active FROM users WHERE id = ?', user_info['id'])
+        active = db.execute('SELECT is_active FROM users WHERE user_id = ?', user_info['user_id'])
         active = extract_data_single(active, 'is_active')
         if active == 0:
             return render_template('error.html', message='Account is no longer active.')
         # user is correct
         # store id in session
-        session['id'] = user_info['id']
+        session['user_id'] = user_info['user_id']
         return redirect('/')
     # got here by link
     return render_template('login.html')
@@ -147,8 +147,8 @@ def register():
     success = db.execute('INSERT INTO users (username, email, password_hash, is_active, firstname, lastname) VALUES (?, ?, ?, ?, ?, ?)', username, email, password_hash, 1, firstname, lastname)
     if success:
         # store user id in session
-        user_id = extract_data_single(db.execute('SELECT id FROM users WHERE email = ?', email), 'id')
-        session['id'] = user_id
+        user_id = extract_data_single(db.execute('SELECT user_id FROM users WHERE email = ?', email), 'user_id')
+        session['user_id'] = user_id
         return render_template('home.html', username=username)
     return render_template('error.html', message='Error inserting user into database.')
 
@@ -174,10 +174,10 @@ def show_medicines():
 @app.route('/medicine_info')
 def show_medicine_info():
     # check valid medicine id is given
-    med_id = request.args.get('medicine_id')
-    if not med_id:
+    medicine_id = request.args.get('medicine_id')
+    if not medicine_id:
         return render_template('error.html', message='No medicine ID provided')
-    medicine_info = db.execute('SELECT * FROM generic WHERE id = ?', med_id)
+    medicine_info = db.execute('SELECT * FROM generic WHERE medicine_id = ?', medicine_id)
     if not medicine_info:
         return render_template('error.html', message='Invlaid medicine ID')
     # get the info on the medicine
@@ -196,17 +196,17 @@ def show_medicine_info():
 def account():
     if request.method == 'GET':
         # get users id
-        user_id = session.get('id')
+        user_id = session.get('user_id')
         if not user_id:
             return redirect('/login')
         # get account info from users table
-        account_info = db.execute('SELECT * FROM users WHERE id = ?', user_id)
+        account_info = db.execute('SELECT * FROM users WHERE user_id = ?', user_id)
         if not account_info:
             return render_template('error.html', message='Account could not be found')
         account_info = account_info[0]
         # get users role
-        role_id = extract_data_single(db.execute('SELECT role_id FROM users WHERE id = ?', user_id), 'role_id')
-        role = extract_data_single(db.execute('SELECT name FROM roles WHERE id = ?', role_id), 'name').capitalize()
+        role_id = extract_data_single(db.execute('SELECT role_id FROM users WHERE user_id = ?', user_id), 'role_id')
+        role = extract_data_single(db.execute('SELECT name FROM roles WHERE role_id = ?', role_id), 'name').capitalize()
         # return edit form if requested
         if request.args.get('action') == 'edit':
             return render_template('account.html', account_info=account_info, action='edit', role=role)
@@ -214,7 +214,7 @@ def account():
 
     # change account info
     # get user_id
-    user_id = session.get('id')
+    user_id = session.get('user_id')
     if not user_id:
         return redirect('/login')
     # check what info is being requested to be changed
@@ -227,7 +227,7 @@ def account():
             return render_template('error.html', message='Not enough information provided')
         
     
-        success = db.execute('UPDATE users SET username = ?, email = ? WHERE id = ?', username, email, user_id)
+        success = db.execute('UPDATE users SET username = ?, email = ? WHERE user_id = ?', username, email, user_id)
         if not success:
             return render_template('error.html', message='Information could not be updated.')
         return redirect('/account')
@@ -240,11 +240,11 @@ def account():
         if not role_password == CHANGE_ROLE_PASSWORD:
             return render_template('error.html', message='Incorrect password, If you are a reviewer check message I sent when submitting on Terra to reviewers for password.')
         # get id of requested role
-        role_id = extract_data_single(db.execute('SELECT id FROM roles WHERE name = ?', role), 'id')
+        role_id = extract_data_single(db.execute('SELECT role_id FROM roles WHERE name = ?', role), 'role_id')
         if not role_id:
             return render_template('error.html', message='Role does not exist')
         # change info in db and return status
-        success = db.execute('UPDATE users SET role_id = ? WHERE id = ?', role_id, user_id)
+        success = db.execute('UPDATE users SET role_id = ? WHERE user_id = ?', role_id, user_id)
         if not success:
             return render_template('error.html', message='Could not update role.')
         return redirect('/account')
@@ -255,7 +255,7 @@ def account():
 @app.route('/make_prescription', methods=['GET', 'POST'])
 def make_prescription():
     # get user id and check user is logged in
-    user_id = session.get('id')
+    user_id = session.get('user_id')
     if not user_id:
         return redirect('/login')   
     # return create prescription form if got here by link
@@ -276,12 +276,12 @@ def make_prescription():
     creator_id = request.form.get('creator_id')
 
     # make sure creator is a doctor
-    role_id = extract_data_single(db.execute('SELECT role_id FROM users WHERE id = ?', creator_id), 'role_id')
-    role = extract_data_single(db.execute('SELECT name FROM roles WHERE id = ?', role_id), 'name')
+    role_id = extract_data_single(db.execute('SELECT role_id FROM users WHERE user_id = ?', creator_id), 'role_id')
+    role = extract_data_single(db.execute('SELECT name FROM roles WHERE role_id = ?', role_id), 'name')
     if role != 'doctor':
         return render_template('error.html', message='Need doctor privileges to create prescriptions.')
     # make sure doctor account is active
-    active = extract_data_single(db.execute('SELECT is_active FROM users WHERE id = ?', creator_id), 'is_active')
+    active = extract_data_single(db.execute('SELECT is_active FROM users WHERE user_id = ?', creator_id), 'is_active')
     if active != 1:
         return render_template('error.html', message='Your account is no longer active.')
 
@@ -316,7 +316,7 @@ def make_prescription():
             return render_template('error.html', message='Repeating interval must be 0(for no interval) or greater. Interval is in days.')
 
     # check medicine is valid 
-    if not db.execute('SELECT * FROM generic WHERE id = ?', medicine_id):
+    if not db.execute('SELECT * FROM generic WHERE medicine_id = ?', medicine_id):
         return render_template('error.html', message='Medicine does not exist.')
 
     # insert prescription into db
@@ -325,7 +325,7 @@ def make_prescription():
         repeating = 1
     else:
         repeating = 0
-    patient_id = extract_data_single(patient_info, 'id')
+    patient_id = extract_data_single(patient_info, 'user_id')
     doctor_id = creator_id
     print(medicine_id)
     print(type(medicine_id))
@@ -333,3 +333,26 @@ def make_prescription():
     if success:
         return redirect('/')
     return render_template('error.html', message='Could not create prescription.')
+
+
+# let users view thier prescriptions
+@app.route('/my_prescriptions')
+def my_prescriptions():
+    # get user info
+    user_id = session.get('user_id')
+    username = extract_data_single(db.execute('SELECT username FROM users WHERE user_id = ?', user_id), 'username')
+    # get users prescriptions and add in user info with INNER JOIN
+    prescriptions_info = db.execute('SELECT * FROM prescriptions INNER JOIN users ON prescriptions.patient_id = users.user_id WHERE patient_id = ?', user_id)
+    # add doctor name and medicine name into prescriptions info
+    for prescription in prescriptions_info:
+        # doctor name
+        doctor_id = prescription['doctor_id']
+        doctor_lastname = extract_data_single(db.execute('SELECT lastname FROM users WHERE user_id = ?', doctor_id), 'lastname')
+        prescription['doctor_name'] = 'Dr. ' + doctor_lastname
+        # medicine name
+        medicine_id = prescription['medicine_id']
+        medicine_name = extract_data_single(db.execute('SELECT name FROM generic WHERE medicine_id = ?', medicine_id), 'name')
+        prescription['medicine_name'] = medicine_name
+    print(prescriptions_info)
+    # display template with users username and list of prescriptions
+    return render_template('my_prescriptions.html', username=username, prescriptions=prescriptions_info)

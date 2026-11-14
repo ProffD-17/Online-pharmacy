@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+    <h1>{{ username }}'s prescriptions</h1>
+
+    {% for prescription in prescriptions %}
+
+        <h2>
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#prescription{{ loop.index }}" aria-expanded="false" aria-controls="prescription{{ loop.index }}">
+                {{ prescription['medicine_name'] }}
+            </button>
+        </h2>
+
+        <div class="collapse" id="prescription{{ loop.index }}">
+            <h3>Prescription info</h3>
+            <h4 class="inline">Medicine:</h4>
+            <form class="form-inline" method="get" action="/medicine_info">
+                <input type="hidden" name="medicine_id" value="{{ prescription['medicine_id'] }}">
+                <button class="btn btn-primary" type="submit">{{ prescription['medicine_name'] }}</button>
+            </form> 
+        </div>
+
+    {% endfor %}
+
+{% endblock %}
