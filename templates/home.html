@@ -8,6 +8,9 @@
         <a class="btn btn-primary" href="/logout">Logout</a>
         <a class="btn btn-primary" href="/medicines">Medicines</a>
         <a class="btn btn-primary" href="/account">Account</a>
+        {% if role == 'doctor' %}
+        <a class="btn btn-primary" href="/make_prescription">Prescribe medicine</a>
+        {% endif %}
     </div>
     
     

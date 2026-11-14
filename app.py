@@ -59,16 +59,17 @@ def format_string_data(data_string):
 # if user has logged in send to home else to login
 @app.route('/')
 def index():
+    # check if user is logged in
     user_id = session.get('id')
     if user_id:
-        username = db.execute('SELECT username FROM users WHERE id = ?', session['id'])
-        if  username:
-            username = extract_data_single(username, 'username')
-            print(username)
+        user_info = db.execute('SELECT * FROM users WHERE id = ?', session['id'])
+        if  user_info:
+            # get users username and role
+            username = extract_data_single(user_info, 'username')
+            role = extract_data_single(db.execute('SELECT name FROM roles WHERE id = ?', extract_data_single(user_info, 'role_id')), 'name')
         else:
-            username = ''
-            print('no username')
-        return render_template('home.html', username=username)
+            return redirect('/login')
+        return render_template('home.html', username=username, role=role)
     
     return redirect('/login')
 
@@ -159,7 +160,7 @@ def show_medicines():
     search = request.args.get('search')
     if search:
         # use LIKE to return search results containing the query
-        search_resuslts = db.execute('SELECT * FROM generic WHERE generic_name LIKE ?', '%' + search + '%')
+        search_resuslts = db.execute('SELECT * FROM generic WHERE name LIKE ?', '%' + search + '%')
         if not search_resuslts:
             return render_template('medicines.html', medicines=None, search_query=search)
         return render_template('medicines.html', medicines=search_resuslts, search_query=search)
@@ -173,10 +174,10 @@ def show_medicines():
 @app.route('/medicine_info')
 def show_medicine_info():
     # check valid medicine id is given
-    generic_id = request.args.get('medicine_id')
-    if not generic_id:
+    med_id = request.args.get('medicine_id')
+    if not med_id:
         return render_template('error.html', message='No medicine ID provided')
-    medicine_info = db.execute('SELECT * FROM generic WHERE generic_id = ?', generic_id)
+    medicine_info = db.execute('SELECT * FROM generic WHERE id = ?', med_id)
     if not medicine_info:
         return render_template('error.html', message='Invlaid medicine ID')
     # get the info on the medicine
@@ -268,8 +269,8 @@ def make_prescription():
     patient_firstname = request.form.get('patient_firstname')
     patient_lastname = request.form.get('patient_lastname')
     repeating = request.form.get('repeating')
-    repeating_start_date = request.form.get('repeating_start_date')
-    repeating_end_date = request.form.get('repeating_end_date')
+    repeating_start_date_str = request.form.get('repeating_start_date')
+    repeating_end_date_str = request.form.get('repeating_end_date')
     repeat_interval = request.form.get('repeat_interval')
     medicine_id = request.form.get('medicine_id')
     creator_id = request.form.get('creator_id')
@@ -295,15 +296,15 @@ def make_prescription():
 
     # check start and end times are after current time
     if repeating:
-        if (not repeating_end_date) or (not repeating_start_date) or (not repeat_interval):
+        if (not repeating_end_date_str) or (not repeating_start_date_str) or (not repeat_interval):
             return render_template('error.html', message='Please provide start date, end date and repeat interval for repeating prescription.')
         # get current date in datetime.date type
         current_time = datetime.today().date()
         # convert date inputs from strings to datetime.date type
-        if (len(repeating_start_date) > 10) or (len(repeating_end_date) > 10):
+        if (len(repeating_start_date_str) > 10) or (len(repeating_end_date_str) > 10):
             return render_template('error.html', message='Latest valid date is 31/12/9999.')
-        repeating_start_date = datetime.strptime(repeating_start_date, '%Y-%m-%d').date()
-        repeating_end_date = datetime.strptime(repeating_end_date, '%Y-%m-%d').date()
+        repeating_start_date = datetime.strptime(repeating_start_date_str, '%Y-%m-%d').date()
+        repeating_end_date = datetime.strptime(repeating_end_date_str, '%Y-%m-%d').date()
         # check dates are after or equal to current day
         if repeating_start_date < current_time:
             return render_template('error.html', message='Repeating start date must be today or later.')
@@ -315,8 +316,20 @@ def make_prescription():
             return render_template('error.html', message='Repeating interval must be 0(for no interval) or greater. Interval is in days.')
 
     # check medicine is valid 
-    print(medicine_id)
-    if not db.execute('SELECT * FROM generic WHERE generic_id = ?', medicine_id):
+    if not db.execute('SELECT * FROM generic WHERE id = ?', medicine_id):
         return render_template('error.html', message='Medicine does not exist.')
-    return render_template('debug.html', m1='Valid prescription create request.')
-    
+
+    # insert prescription into db
+    # store true as 1 and false as 0
+    if repeating == 'repeating':
+        repeating = 1
+    else:
+        repeating = 0
+    patient_id = extract_data_single(patient_info, 'id')
+    doctor_id = creator_id
+    print(medicine_id)
+    print(type(medicine_id))
+    success = db.execute('INSERT INTO prescriptions (patient_id, medicine_id, doctor_id, repeating, repeating_start, repeating_end, repeat_interval) VALUES (?, ?, ?, ?, ?, ?, ?)', patient_id, medicine_id, doctor_id, repeating, repeating_start_date_str, repeating_end_date_str, repeat_interval)
+    if success:
+        return redirect('/')
+    return render_template('error.html', message='Could not create prescription.')

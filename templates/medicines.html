@@ -19,10 +19,10 @@
             <tbody>
                 {% for medicine in medicines %}
                     <tr>
-                        <td>{{ medicine['generic_name'] }}</td>
+                        <td>{{ medicine['name'] }}</td>
                         <td>
                             <form action="/medicine_info" method="get">
-                                <input type="hidden" value="{{ medicine['generic_id'] }}" name="medicine_id">
+                                <input type="hidden" value="{{ medicine['id'] }}" name="medicine_id">
                                 <button class="btn btn-primary" type="submit">Info</button>
                             </form>
                         </td>

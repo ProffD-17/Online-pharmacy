@@ -8,7 +8,7 @@ CREATE TABLE "users" (
     "username" TEXT NOT NULL UNIQUE,
     "role_id" INTEGER DEFAULT 1,
     "firstname" TEXT NOT NULL,
-    "surname" TEXT NOT NULL,
+    "lastname" TEXT NOT NULL,
     FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
@@ -23,7 +23,7 @@ INSERT INTO roles ("id", "name") VALUES (2, 'doctor');
 
 
 -- prescriptions
-CREATE TABLE "prescritions" (
+CREATE TABLE "prescriptions" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "patient_id" INTEGER NOT NULL,
     "medicine_id" INTEGER NOT NULL,
@@ -31,8 +31,8 @@ CREATE TABLE "prescritions" (
     "repeating" INTEGER NOT NULL DEFAULT 0,
     "repeating_start" TEXT,
     "repeating_end" TEXT,
-    "repeating_interval" INTEGER,
+    "repeat_interval" INTEGER,
     FOREIGN KEY (patient_id) REFERENCES users(id),
     FOREIGN KEY (doctor_id) REFERENCES users(id),
-    FOREIGN KEY (medicine_id) REFERENCES generic(generic_id)
+    FOREIGN KEY (medicine_id) REFERENCES generic(id)
 );
