@@ -10,15 +10,52 @@
                 {{ prescription['medicine_name'] }}
             </button>
         </h2>
-
         <div class="collapse" id="prescription{{ loop.index }}">
-            <h3>Prescription info</h3>
-            <h4 class="inline">Medicine:</h4>
-            <form class="form-inline" method="get" action="/medicine_info">
-                <input type="hidden" name="medicine_id" value="{{ prescription['medicine_id'] }}">
-                <button class="btn btn-primary" type="submit">{{ prescription['medicine_name'] }}</button>
-            </form> 
+            <div class="container">
+                <div class="row">
+                    <h3 class="col text-center">Prescription info</h3>
+                </div>
+                <div class="row">
+                    <h4 class="col">Medicine:</h4>
+                    <form class="col" method="get" action="/medicine_info">
+                        <input type="hidden" name="medicine_id" value="{{ prescription['medicine_id'] }}">
+                        <button class="btn btn-link" type="submit">{{ prescription['medicine_name'] }}</button>
+                    </form> 
+                </div>
+                <div class="row">
+                    <h4 class="col">Doctor:</h4>
+                    <p class="col">{{ prescription['doctor_name'] }}</p>
+                </div>
+                <div class="row">
+                    <h4 class="col">Type:</h4>
+                {% if prescription['repeating'] == 1 %}
+                    <p class="col">Repeating</p>
+                </div>
+                <div class="row">
+                    <h4 class="col">Valid from:</h4>
+                    <p class="col">{{ prescription['repeating_start'] }}</p>
+                </div>
+                <div class="row">
+                    <h4 class="col">Valid until:</h4>
+                    <p class="col">{{ prescription['repeating_end'] }}</p>
+                </div>
+                <div class="row">
+                    <h4 class="col">Repeating interval:</h4>
+                    <p class="col">This prescription can be ordered every {{ prescription['repeat_interval'] }} days while it is valid.</p>
+                </div>
+                {% else %}
+                    <p class="col">One time</p>
+                </div>
+                {% endif %}
+                <div class="row">
+
+                </div>
+            </div>
+            
+            
+
         </div>
+
 
     {% endfor %}
 

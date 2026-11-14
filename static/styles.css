@@ -16,6 +16,10 @@
     color: black;
 }
 
+.inline {
+    display: inline;
+}
+
 body {
     padding: 0 5px;
 }

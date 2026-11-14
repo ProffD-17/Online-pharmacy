@@ -353,6 +353,5 @@ def my_prescriptions():
         medicine_id = prescription['medicine_id']
         medicine_name = extract_data_single(db.execute('SELECT name FROM generic WHERE medicine_id = ?', medicine_id), 'name')
         prescription['medicine_name'] = medicine_name
-    print(prescriptions_info)
     # display template with users username and list of prescriptions
     return render_template('my_prescriptions.html', username=username, prescriptions=prescriptions_info)
