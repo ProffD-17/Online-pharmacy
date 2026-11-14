@@ -23,6 +23,13 @@
                     </form> 
                 </div>
                 <div class="row">
+                    <form action="/order_prescription" method="post" class="col">
+                        <input type="hidden" name="prescription_id" value="{{ prescription['prescription_id'] }}">
+                        <button type="submit" class="w-100 btn btn-primary">Order prescription</button>
+                    </form>
+                    
+                </div>
+                <div class="row">
                     <h4 class="col">Doctor:</h4>
                     <p class="col">{{ prescription['doctor_name'] }}</p>
                 </div>

@@ -1,4 +1,5 @@
 -- the SQL I wrote to add on to the db
+
 -- users table
 CREATE TABLE "users" (
     "user_id" INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +33,15 @@ CREATE TABLE "prescriptions" (
     "repeating_start" TEXT,
     "repeating_end" TEXT,
     "repeat_interval" INTEGER,
-    FOREIGN KEY (patient_id) REFERENCES users(id),
-    FOREIGN KEY (doctor_id) REFERENCES users(id),
-    FOREIGN KEY (medicine_id) REFERENCES generic(id)
+    "last_ordered" TEXT,
+    FOREIGN KEY (patient_id) REFERENCES users(user_id),
+    FOREIGN KEY (doctor_id) REFERENCES users(user_id),
+    FOREIGN KEY (medicine_id) REFERENCES generic(medicine_id)
+);
+
+-- prescripton orders
+CREATE TABLE "orders" (
+    "order_id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "prescription_id" INTEGER NOT NULL,
+    FOREIGN KEY (prescription_id) REFERENCES presciptions(prescription_id)
 );

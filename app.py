@@ -56,6 +56,7 @@ def format_string_data(data_string):
     return formated_string
 
 
+# USERS LOGGIN IN/OUT
 # if user has logged in send to home else to login
 @app.route('/')
 def index():
@@ -153,6 +154,7 @@ def register():
     return render_template('error.html', message='Error inserting user into database.')
 
 
+# DISPLAY MEDICINE INFORMATION
 # show medicines in db
 @app.route('/medicines')
 def show_medicines():
@@ -169,7 +171,6 @@ def show_medicines():
     medicines = db.execute('SELECT * FROM generic')
     return render_template('medicines.html', medicines=medicines)
 
-# TODO: make this work with new db
 # show information for a medicine
 @app.route('/medicine_info')
 def show_medicine_info():
@@ -191,6 +192,7 @@ def show_medicine_info():
     return render_template('medicine_info.html', medicine_info=medicine_info, pregnancy_advice=pregnancy_category)
 
 
+# DISPLAY ACCOUNT INFO
 # display information about a users account: Role, username, email, delete account and allow them to edit it
 @app.route('/account', methods=['POST', 'GET'])
 def account():
@@ -252,6 +254,7 @@ def account():
     return render_template('error.html', message='Route does not support this method')
 
 
+# HANDLE PRESCRIPTONS BEING MADE, VIEWED AND REQUESTED
 @app.route('/make_prescription', methods=['GET', 'POST'])
 def make_prescription():
     # get user id and check user is logged in
@@ -299,16 +302,16 @@ def make_prescription():
         if (not repeating_end_date_str) or (not repeating_start_date_str) or (not repeat_interval):
             return render_template('error.html', message='Please provide start date, end date and repeat interval for repeating prescription.')
         # get current date in datetime.date type
-        current_time = datetime.today().date()
+        current_date = datetime.today().date()
         # convert date inputs from strings to datetime.date type
         if (len(repeating_start_date_str) > 10) or (len(repeating_end_date_str) > 10):
             return render_template('error.html', message='Latest valid date is 31/12/9999.')
         repeating_start_date = datetime.strptime(repeating_start_date_str, '%Y-%m-%d').date()
         repeating_end_date = datetime.strptime(repeating_end_date_str, '%Y-%m-%d').date()
         # check dates are after or equal to current day
-        if repeating_start_date < current_time:
+        if repeating_start_date < current_date:
             return render_template('error.html', message='Repeating start date must be today or later.')
-        if repeating_end_date < current_time:
+        if repeating_end_date < current_date:
             return render_template('error.html', message='Repeating end date must be today or later.')
         # check repeating interval is valid
         repeat_interval = int(repeat_interval)
@@ -355,3 +358,46 @@ def my_prescriptions():
         prescription['medicine_name'] = medicine_name
     # display template with users username and list of prescriptions
     return render_template('my_prescriptions.html', username=username, prescriptions=prescriptions_info)
+
+
+# check users prescription requests and add them to the prescription requests table if valid
+@app.route('/order_prescription', methods=['POST'])
+def order_prescription():
+    # VALIDATE PRESCRIPTION REQUEST
+    # get prescripton id from form
+    prescription_id = request.form.get('prescription_id')
+    # get dict of prescription info
+    print(prescription_id)
+    prescription_info = db.execute('SELECT * FROM prescriptions WHERE prescription_id = ?', prescription_id)
+    if not prescription_info:
+        return render_template('error.html', message='Invalid prescription')
+    prescription_info = prescription_info[0]
+    # validate date and repeat interval
+    repeating = prescription_info['repeating']
+    if repeating == 1:
+        current_date = datetime.today().date()
+        # validate start date
+        repeat_start_date = datetime.strptime(prescription_info['repeating_start'], '%Y-%m-%d').date()
+        if repeat_start_date < current_date:
+            return render_template('error.html', message='You cannot order this prescription before the start date.')
+        # validate end date
+        repeat_end_date = datetime.strptime(prescription_info['repeating_end'], '%Y-%m-%d').date()
+        if repeat_end_date < current_date:
+            return render_template('error.html', message='This prescription is past the end date. Please talk to your doctor to request a new one.')
+        # validate if order has been ordered too recently to be ordered again
+        repeat_interval = prescription_info['repeat_interval']
+        last_ordered = prescription_info['last_ordered']
+        if last_ordered:
+            last_ordered = datetime.strptime(last_ordered, '%Y-%m-%d').date()
+            next_valid_order_date = last_ordered + datetime.timedelta(days=repeat_interval)
+            if next_valid_order_date < current_date:
+                return render_template('error.html', message='You cannot order that yet. Please wait until ' + next_valid_order_date.strftime('%d/%m/%Y'))
+        # change format to store in db
+        last_ordered = current_date.strftime('%Y-%m-%d')
+        # update last ordered to now
+        db.execute('UPDATE prescriptions SET last_ordered = ? WHERE prescription_id = ?', last_ordered, prescription_id)
+
+    success = db.execute('INSERT INTO orders (prescription_id)')
+    if success:
+        return redirect('/')
+    return render_template('error.html', message='Failed to order prescription.')
