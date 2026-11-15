@@ -37,8 +37,19 @@ The original database can be found at https://github.com/WSAyan/medicinedb and t
 - app.py - the main logic for the site
 - requirements.txt - all the dependencies for the project. you only have to install these if you want to run the site locally
 
+## Technologies
+I used:
+- HTML and jinja - displaying content on the frontend
+- CSS(mainly bootstrap) - making things look professional and responsive
+- Flask - connecting the frontend to the backend
+- SQLite - store the users, prescriptions, medicines ect.
+- Python - making the logic for things like validating input and executing commands to extract/input into the database
+
+## Notes for reviwers
+I included the password to change a users role in the terra submision.
+
 ## Tasks for next week
-- view my prescriptions (sort into valid and not valid)
-- order prescription
-- approve orders
+- sort my prescriptions page into valid and invalid prescriptions
+- let pharmacists approve orders
 - make pharmacist role
+- make medicine shop to allow users to buy medicines
