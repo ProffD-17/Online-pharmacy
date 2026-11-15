@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, session, redirect # flask fun
 from flask_session import Session # for tracking if users are logged in
 from cs50 import SQL # for interacting with databases
 import bcrypt # for password hashing
-from datetime import datetime # for getting todays date
+from datetime import datetime, timedelta # for getting todays date
 
 # configure app
 app = Flask(__name__)
@@ -389,7 +389,7 @@ def order_prescription():
         last_ordered = prescription_info['last_ordered']
         if last_ordered:
             last_ordered = datetime.strptime(last_ordered, '%Y-%m-%d').date()
-            next_valid_order_date = last_ordered + datetime.timedelta(days=repeat_interval)
+            next_valid_order_date = last_ordered + timedelta(days=repeat_interval)
             if next_valid_order_date < current_date:
                 return render_template('error.html', message='You cannot order that yet. Please wait until ' + next_valid_order_date.strftime('%d/%m/%Y'))
         # change format to store in db
