@@ -414,7 +414,7 @@ def order_prescription():
 
     success = db.execute('INSERT INTO orders (prescription_id, completed) VALUES (?, ?)', prescription_id, 0)
     if success:
-        return redirect('/')
+        return render_template('success.html', message='Ordered prescription. It will be ready to collect within 2 buisness days.')
     return render_template('error.html', message='Failed to order prescription.')
 
 

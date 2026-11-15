@@ -44,5 +44,5 @@ CREATE TABLE "orders" (
     "order_id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "prescription_id" INTEGER NOT NULL,
     "completed" INTEGER NOT NULL,
-    FOREIGN KEY (prescription_id) REFERENCES presciptions(prescription_id)
+    FOREIGN KEY (prescription_id) REFERENCES prescriptions(prescription_id)
 );
