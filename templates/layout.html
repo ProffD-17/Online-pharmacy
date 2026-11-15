@@ -13,6 +13,34 @@
         <link rel="stylesheet" href="static\styles.css">
     </head>
     <body>
+        {% if not logged_out %}
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#">Online Pharmacy</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">Logout</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/medicine">Medicines</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/account">Account</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/my_prescriptions">Prescriptions</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        {% endif %}
         {% block body %}
 
         {% endblock %}

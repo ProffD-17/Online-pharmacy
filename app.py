@@ -105,14 +105,14 @@ def login():
         session['user_id'] = user_info['user_id']
         return redirect('/')
     # got here by link
-    return render_template('login.html')
+    return render_template('login.html', logged_out=True)
 
 
 # logout user and clear session
 @app.route('/logout')
 def logout():
     session.clear()
-    return render_template('logout.html')
+    return render_template('logout.html', logged_out=True)
 
 
 # register new users in the db
@@ -120,7 +120,7 @@ def logout():
 def register():
     # return form if got here by link
     if request.method == 'GET':
-        return render_template('register.html')
+        return render_template('register.html', logged_out=True)
     
     # get info from the form
     username = request.form.get('username')
@@ -131,15 +131,15 @@ def register():
 
     # check all info is there
     if (not username) or (not email) or (not password_text) or (not firstname) or (not lastname):
-        return render_template('error.html', message='Not enough information provided.')
+        return render_template('error.html', message='Not enough information provided.', logged_out=True)
     
     # check email and username are unique
     identical_email = db.execute('SELECT * FROM users WHERE email = ?', email)
     if identical_email:
-        return render_template('error.html', message='Email already in use.')
+        return render_template('error.html', message='Email already in use.', logged_out=True)
     identical_username = db.execute('SELECT * FROM users WHERE username = ?', username)
     if identical_username:
-        return render_template('error.html', message='Username already in use.')
+        return render_template('error.html', message='Username already in use.', logged_out=True)
     
     # hash password
     password_hash = bcrypt.hashpw(password=password_text.encode("utf-8"), salt=bcrypt.gensalt())
@@ -151,7 +151,7 @@ def register():
         user_id = extract_data_single(db.execute('SELECT user_id FROM users WHERE email = ?', email), 'user_id')
         session['user_id'] = user_id
         return render_template('home.html', username=username)
-    return render_template('error.html', message='Error inserting user into database.')
+    return render_template('error.html', message='Error inserting user into database.', logged_out=True)
 
 
 # DISPLAY MEDICINE INFORMATION
@@ -416,3 +416,9 @@ def order_prescription():
     if success:
         return redirect('/')
     return render_template('error.html', message='Failed to order prescription.')
+
+
+# stuff to do next week
+@app.route('/manage_orders')
+def manage_orders():
+    return render_template('comming_soon.html')

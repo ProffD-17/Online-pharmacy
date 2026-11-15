@@ -4,14 +4,32 @@
     <h1 class="text-center">Online Pharmacy</h1>
     <p class="text-center">Welome {{ username }}</p>
 
-    <div class="flex-center">
-        <a class="btn btn-primary" href="/logout">Logout</a>
-        <a class="btn btn-primary" href="/medicines">Medicines</a>
-        <a class="btn btn-primary" href="/account">Account</a>
-        {% if role == 'doctor' %}
-        <a class="btn btn-primary" href="/make_prescription">Prescribe medicine</a>
-        {% endif %}
-        <a class="btn btn-primary" href="/my_prescriptions">My prescriptions</a>
+    <div class="container">
+        <div class="row g-2">
+            <div class="col mt-2">
+                <a class="btn btn-primary w-100 h-100" href="/logout">Logout</a>
+            </div>
+            <div class="col mt-2">
+                <a class="btn btn-primary w-100 h-100" href="/medicines">Medicines</a>
+            </div>
+            <div class="col mt-2">
+                <a class="btn btn-primary w-100 h-100" href="/account">Account</a>
+            </div>
+            {% if role == 'doctor' %}
+            <div class="col mt-2">
+                <a class="btn btn-primary w-100 h-100" href="/make_prescription">Prescribe medicine</a>
+            </div>
+            {% endif %}
+            <div class="col mt-2">
+                <a class="btn btn-primary w-100 h-100" href="/my_prescriptions">My prescriptions</a>
+            </div>
+            {% if role == 'doctor' or role == 'pharmacist' %}
+            <div class="col mt-2">
+                <a class="btn btn-primary w-100 h-100" href="/manage_orders">Manage orders</a>
+            </div>
+            {% endif %}
+        </div>
+        
     </div>
     
     
