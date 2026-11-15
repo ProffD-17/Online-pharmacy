@@ -396,8 +396,23 @@ def order_prescription():
         last_ordered = current_date.strftime('%Y-%m-%d')
         # update last ordered to now
         db.execute('UPDATE prescriptions SET last_ordered = ? WHERE prescription_id = ?', last_ordered, prescription_id)
+    else:
+        # is onetime use so check prescription has not been used before
+        if prescription_info['last_ordered']:
+            return render_template('error.html', message='This prescription has been ordered and is no longer valid. Please speak to your doctor if you require more medication.')
+        # update last ordered date
+        # change format to store in db
+        last_ordered = datetime.today().date().strftime('%Y-%m-%d')
+        # update last ordered to now
+        db.execute('UPDATE prescriptions SET last_ordered = ? WHERE prescription_id = ?', last_ordered, prescription_id)
+    
+    # validate medicine exists
+    medicine_id = prescription_info['medicine_id']
+    if not db.execute('SELECT * FROM generic WHERE medicine_id = ?', medicine_id):
+        return render_template('error.html', message='Medicine does not exist.')
+    
 
-    success = db.execute('INSERT INTO orders (prescription_id)')
+    success = db.execute('INSERT INTO orders (prescription_id, completed) VALUES (?, ?)', prescription_id, 0)
     if success:
         return redirect('/')
     return render_template('error.html', message='Failed to order prescription.')
