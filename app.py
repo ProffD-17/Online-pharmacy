@@ -421,4 +421,17 @@ def order_prescription():
 # stuff to do next week
 @app.route('/manage_orders')
 def manage_orders():
-    return render_template('comming_soon.html')
+    # check user has sufficient role to view this
+    user_id = session.get('user_id')
+    if not user_id:
+        return render_template('error.html', message='Please log out and login again.')
+    role_id = extract_data_single(db.execute('SELECT role_id FROM users WHERE user_id = ?', user_id), 'role_id')
+    role = extract_data_single(db.execute('SELECT name FROM roles WHERE role_id = ?', role_id), 'name')
+    if role not in ['doctor', 'pharmacist']:
+        return render_template('error.html', message='You do not have the privilage to view this page. You can change your privilages in the accounts page.')
+    # show all orders sorted by completed and uncompleted
+    uncompleted_orders = extract_data_to_list(db.execute('SELECT * FROM orders WHERE completed = 0'), 'prescription_id')
+    uncompleted_orders = db.execute('SELECT * FROM prescriptions WHERE prescription_id IN (?)', uncompleted_orders)
+    completed_orders = extract_data_to_list(db.execute('SELECT * FROM orders WHERE completed = 1'), 'prescription_id')
+    completed_orders = db.execute('SELECT * FROM prescriptions WHERE prescription_id IN (?)', completed_orders)
+    return render_template('orders.html', completed_orders=completed_orders, uncompleted_orders=uncompleted_orders)

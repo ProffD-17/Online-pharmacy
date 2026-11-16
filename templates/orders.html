@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+    <h1>Orders</h1>
+    <h2>Uncompleted</h2>
+    {% for order in uncompleted_orders %}
+    <a class="underlined black-text" data-toggle="collapse" href="#order{{ loop.index }}" role="button" aria-expanded="false" aria-controls="{{ loop.index }}">
+        {{ loop.index }}
+    </a>
+    <div class="collapse" id="order{{ loop.index }}">
+        <p>{{ loop.index }}</p>
+    </div>
+    {% endfor %}
+    <h2>Completed</h2>
+
+{% endblock %}
