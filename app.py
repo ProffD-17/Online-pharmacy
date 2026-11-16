@@ -423,21 +423,42 @@ def order_prescription():
 
 
 # allow pharmacists and doctors to manage patients ordering prescriptions
-@app.route('/manage_orders')
+@app.route('/manage_orders', methods=['GET', 'POST'])
 def manage_orders():
-    # check user has sufficient role to view this
+    # check user has sufficient role to access this route
     user_id = session.get('user_id')
     if not user_id:
         return render_template('error.html', message='Please log out and login again.')
     role_id = extract_data_single(db.execute('SELECT role_id FROM users WHERE user_id = ?', user_id), 'role_id')
     role = extract_data_single(db.execute('SELECT name FROM roles WHERE role_id = ?', role_id), 'name')
     if role not in ['doctor', 'pharmacist']:
-        return render_template('error.html', message='You do not have the privilage to view this page. You can change your privilages in the accounts page.')
-
+        return render_template('error.html', message='You do not have the privilage for this. You can change your privilages in the accounts page.')
     
-    # show all orders sorted by completed and uncompleted
-    # get list of all orders prescription ids
-    orders = db.execute('SELECT * FROM orders INNER JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id INNER JOIN generic ON prescriptions.medicine_id = generic.medicine_id INNER JOIN users ON prescriptions.patient_id = users.user_id')
-    # add doctors name to the order
+    if request.method ==  'GET':
+        # DISPLAY ORDERS    
+        # show all orders sorted by completed and uncompleted
+        # get list of all orders and relating info
+        orders = db.execute('SELECT * FROM orders INNER JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id INNER JOIN generic ON prescriptions.medicine_id = generic.medicine_id INNER JOIN users ON prescriptions.patient_id = users.user_id')
+        # add doctors name to the order
+        for order in orders:
+            prescription_id = order['prescription_id']
+            doctor_id = extract_data_single(db.execute('SELECT doctor_id FROM prescriptions WHERE prescription_id = ?', prescription_id), 'doctor_id')
+            doctor_lastname = extract_data_single(db.execute('SELECT lastname FROM users WHERE user_id = ?', doctor_id), 'lastname')
+            order['prescribing_doctor'] = 'Dr. ' + doctor_lastname
 
-    return render_template('orders.html', orders=orders)
+        return render_template('orders.html', orders=orders)
+    # CHANGE STATUS OF ORDER (COMPLETED <--> UNCOMPLETED)
+    order_id = request.form.get('order_id')
+    completed = extract_data_single(db.execute('SELECT completed FROM orders WHERE order_id = ?', order_id), 'completed')
+    if completed == 0:
+        success = db.execute('UPDATE orders SET completed = 1 WHERE order_id = ?', order_id)
+        if success:
+                return render_template('success.html', message='Marked prescription as completed')
+        return render_template('error.html', message='Could not update status of order')
+        
+    success = db.execute('UPDATE orders SET completed = 0 WHERE order_id = ?', order_id)
+    if success:
+            return render_template('success.html', message='Marked prescription as uncompleted')
+    return render_template('error.html', message='Could not update status of order')
+    
+    

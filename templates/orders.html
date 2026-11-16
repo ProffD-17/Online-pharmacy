@@ -12,9 +12,14 @@
                 <div class="card card-body">
                     <p>Medicine name: <strong>{{ order['name'] }}</strong></p>
                     <p>Patient name: <strong>{{ order['firstname'] }} {{ order['lastname'] }}</strong></p>
+                    <p>Prescribing doctor: <strong>{{ order['prescribing_doctor'] }}</strong></p>
                     <p>Times ordered: <strong>{{ order['times_ordered'] }}</strong></p>
                     <p>Prescription type: <strong>{% if order['repeating'] == 1 %}Repeating{% else %}One time{% endif %}</strong></p>
                     <p>Last ordered: <strong>{{ order['order_date'] }}</strong></p>
+                    <form action="/manage_orders" method="post">
+                        <input type="hidden" name="order_id" value="{{ order['order_id'] }}">
+                        <button type="submit" class="btn btn-primary">Mark order as complete</button>
+                    </form>
                 </div>
             </div>
         {% endif %}
