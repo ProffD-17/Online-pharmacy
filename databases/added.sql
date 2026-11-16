@@ -35,6 +35,7 @@ CREATE TABLE "prescriptions" (
     "repeating_end" TEXT,
     "repeat_interval" INTEGER,
     "last_ordered" TEXT,
+    "times_ordered" INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (patient_id) REFERENCES users(user_id),
     FOREIGN KEY (doctor_id) REFERENCES users(user_id),
     FOREIGN KEY (medicine_id) REFERENCES generic(medicine_id)

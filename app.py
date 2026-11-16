@@ -372,6 +372,12 @@ def order_prescription():
     if not prescription_info:
         return render_template('error.html', message='Invalid prescription')
     prescription_info = prescription_info[0]
+
+    # validate medicine exists
+    medicine_id = prescription_info['medicine_id']
+    if not db.execute('SELECT * FROM generic WHERE medicine_id = ?', medicine_id):
+        return render_template('error.html', message='Medicine does not exist.')
+    
     # validate date and repeat interval
     repeating = prescription_info['repeating']
     if repeating == 1:
@@ -405,20 +411,16 @@ def order_prescription():
         last_ordered = datetime.today().date().strftime('%Y-%m-%d')
         # update last ordered to now
         db.execute('UPDATE prescriptions SET last_ordered = ? WHERE prescription_id = ?', last_ordered, prescription_id)
-    
-    # validate medicine exists
-    medicine_id = prescription_info['medicine_id']
-    if not db.execute('SELECT * FROM generic WHERE medicine_id = ?', medicine_id):
-        return render_template('error.html', message='Medicine does not exist.')
-    
-
+    # update times ordered
+    db.execute('UPDATE prescriptions SET times_ordered = ? WHERE prescription_id = ?', extract_data_single(db.execute('SELECT times_ordered FROM prescriptions WHERE prescription_id = ?', prescription_id), 'times_ordered') + 1, prescription_id)
+    # return status
     success = db.execute('INSERT INTO orders (prescription_id, completed) VALUES (?, ?)', prescription_id, 0)
     if success:
         return render_template('success.html', message='Ordered prescription. It will be ready to collect within 2 buisness days.')
     return render_template('error.html', message='Failed to order prescription.')
 
 
-# stuff to do next week
+# allow pharmacists and doctors to manage patients ordering prescriptions
 @app.route('/manage_orders')
 def manage_orders():
     # check user has sufficient role to view this
@@ -429,25 +431,21 @@ def manage_orders():
     role = extract_data_single(db.execute('SELECT name FROM roles WHERE role_id = ?', role_id), 'name')
     if role not in ['doctor', 'pharmacist']:
         return render_template('error.html', message='You do not have the privilage to view this page. You can change your privilages in the accounts page.')
+
+    
     # show all orders sorted by completed and uncompleted
     # get list of all orders prescription ids
-    orders_prescription_ids = extract_data_to_list(db.execute('SELECT prescription_id FROM orders'), 'prescription_id')
-    # map that to a dict of the prescription id and the number of times it has been ordered
-    prescription_order_count = dict()
-    for prescription_id in orders_prescription_ids:
-        if prescription_id in prescription_order_count:
-            prescription_order_count[prescription_id] += 1
-        else:
-            prescription_order_count[prescription_id] = 1
-    # make that a list of dicts that contain all the information on the order including amount of times ordered
-    orders = db.execute('SELECT * FROM prescriptions WHERE prescription_id IN (?)', orders_prescription_ids)
+    orders = db.execute('SELECT * FROM orders')
+    # sort into completed and uncompleted orders
+    completed_orders = []
+    uncompleted_orders = []
     for order in orders:
-        if order['prescription_id'] in prescription_order_count:
-            order['times_ordered'] = prescription_order_count[order['prescription_id']]
+        if order['completed'] == 0:
+            uncompleted_orders.append(order)
         else:
-            order['times_ordered'] = 1
-    print(orders)
-    return render_template('debug.html')
+            completed_orders.append(order)
+
+    return render_template('orders.html', completed_orders=completed_orders, uncompleted_orders=uncompleted_orders)
 
     # same thing for completed orders (funcion?)
     completed_orders = extract_data_to_list(db.execute('SELECT prescription_id FROM orders WHERE completed = 1'), 'prescription_id')

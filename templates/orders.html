@@ -4,13 +4,21 @@
     <h1>Orders</h1>
     <h2>Uncompleted</h2>
     {% for order in uncompleted_orders %}
-    <a class="underlined black-text" data-toggle="collapse" href="#order{{ loop.index }}" role="button" aria-expanded="false" aria-controls="{{ loop.index }}">
-        {{ order['name'] }}
-    </a>
-    <div class="collapse" id="order{{ loop.index }}">
-        <p>{{ order['name'] }}</p>
-    </div>
+        <a class="underlined black-text d-block" data-toggle="collapse" href="#order{{ order['order_id'] }}" role="button" aria-expanded="false" aria-controls="{{ order['order_id'] }}">
+            {{ order['order_id'] }}
+        </a>
+        <div class="collapse" id="order{{ order['order_id'] }}">
+            <p>{{ order['prescription_id'] }}</p>
+        </div>
     {% endfor %}
     <h2>Completed</h2>
+    {% for order in completed_orders %}
+        <a class="underlined black-text d-block" data-toggle="collapse" href="#order{{ order['order_id'] }}" role="button" aria-expanded="false" aria-controls="{{ order['order_id'] }}">
+            {{ order['order_id'] }}
+        </a>
+        <div class="collapse" id="order{{ order['order_id'] }}">
+            <p>{{ order['prescription_id'] }}</p>
+        </div>
+    {% endfor %}
 
 {% endblock %}
