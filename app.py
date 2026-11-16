@@ -435,7 +435,7 @@ def manage_orders():
     
     # show all orders sorted by completed and uncompleted
     # get list of all orders prescription ids
-    orders = db.execute('SELECT * FROM orders')
+    orders = db.execute('SELECT * FROM orders INNER JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id INNER JOIN generic ON prescriptions.medicine_id = generic.medicine_id')
     # sort into completed and uncompleted orders
     completed_orders = []
     uncompleted_orders = []

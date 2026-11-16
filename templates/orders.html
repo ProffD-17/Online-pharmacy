@@ -8,7 +8,8 @@
             {{ order['order_id'] }}
         </a>
         <div class="collapse" id="order{{ order['order_id'] }}">
-            <p>{{ order['prescription_id'] }}</p>
+            <p>Medicine name: {{ order['name'] }}</p>
+            <p>Times ordered: {{ order['times_ordered'] }}</p>
         </div>
     {% endfor %}
     <h2>Completed</h2>
