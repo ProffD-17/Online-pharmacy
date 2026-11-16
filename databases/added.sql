@@ -46,5 +46,6 @@ CREATE TABLE "orders" (
     "order_id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "prescription_id" INTEGER NOT NULL,
     "completed" INTEGER NOT NULL,
+    "order_date" TEXT NOT NULL,
     FOREIGN KEY (prescription_id) REFERENCES prescriptions(prescription_id)
 );

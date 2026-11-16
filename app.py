@@ -379,8 +379,10 @@ def order_prescription():
         return render_template('error.html', message='Medicine does not exist.')
     
     # validate date and repeat interval
+    
     repeating = prescription_info['repeating']
     if repeating == 1:
+        # get todays date
         current_date = datetime.today().date()
         # validate start date
         repeat_start_date = datetime.strptime(prescription_info['repeating_start'], '%Y-%m-%d').date()
@@ -414,7 +416,7 @@ def order_prescription():
     # update times ordered
     db.execute('UPDATE prescriptions SET times_ordered = ? WHERE prescription_id = ?', extract_data_single(db.execute('SELECT times_ordered FROM prescriptions WHERE prescription_id = ?', prescription_id), 'times_ordered') + 1, prescription_id)
     # return status
-    success = db.execute('INSERT INTO orders (prescription_id, completed) VALUES (?, ?)', prescription_id, 0)
+    success = db.execute('INSERT INTO orders (prescription_id, completed, order_date) VALUES (?, ?, ?)', prescription_id, 0, datetime.today().date().strftime('%Y-%m-%d'))
     if success:
         return render_template('success.html', message='Ordered prescription. It will be ready to collect within 2 buisness days.')
     return render_template('error.html', message='Failed to order prescription.')

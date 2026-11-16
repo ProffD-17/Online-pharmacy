@@ -13,6 +13,7 @@
                 <p>Patient name: <strong>{{ order['firstname'] }} {{ order['lastname'] }}</strong></p>
                 <p>Times ordered: <strong>{{ order['times_ordered'] }}</strong></p>
                 <p>Prescription type: <strong>{% if order['repeating'] == 1 %}Repeating{% else %}One time{% endif %}</strong></p>
+                <p>Last ordered: <strong>{{ order['order_date'] }}</strong></p>
             </div>
         </div>
     {% endfor %}
