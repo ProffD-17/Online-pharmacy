@@ -251,7 +251,7 @@ def account():
             return render_template('error.html', message='Could not update role.')
         return redirect('/account')
     # not get and none of the correct info passed in post
-    return render_template('error.html', message='Route does not support this method')
+    return render_template('error.html', message='Please enter a value on one of the forms.')
 
 
 # HANDLE PRESCRIPTONS BEING MADE, VIEWED AND REQUESTED

@@ -21,6 +21,7 @@ CREATE TABLE "roles" (
 
 INSERT INTO roles ("role_id", "name") VALUES (1, 'patient');
 INSERT INTO roles ("role_id", "name") VALUES (2, 'doctor');
+INSERT INTO roles ("role_id", "name") VALUES (3, 'pharmacist');
 
 
 -- prescriptions
