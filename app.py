@@ -430,8 +430,26 @@ def manage_orders():
     if role not in ['doctor', 'pharmacist']:
         return render_template('error.html', message='You do not have the privilage to view this page. You can change your privilages in the accounts page.')
     # show all orders sorted by completed and uncompleted
-    uncompleted_orders = extract_data_to_list(db.execute('SELECT * FROM orders WHERE completed = 0'), 'prescription_id')
-    uncompleted_orders = db.execute('SELECT * FROM prescriptions WHERE prescription_id IN (?)', uncompleted_orders)
-    completed_orders = extract_data_to_list(db.execute('SELECT * FROM orders WHERE completed = 1'), 'prescription_id')
+    # get list of all orders prescription ids
+    orders_prescription_ids = extract_data_to_list(db.execute('SELECT prescription_id FROM orders'), 'prescription_id')
+    # map that to a dict of the prescription id and the number of times it has been ordered
+    prescription_order_count = dict()
+    for prescription_id in orders_prescription_ids:
+        if prescription_id in prescription_order_count:
+            prescription_order_count[prescription_id] += 1
+        else:
+            prescription_order_count[prescription_id] = 1
+    # make that a list of dicts that contain all the information on the order including amount of times ordered
+    orders = db.execute('SELECT * FROM prescriptions WHERE prescription_id IN (?)', orders_prescription_ids)
+    for order in orders:
+        if order['prescription_id'] in prescription_order_count:
+            order['times_ordered'] = prescription_order_count[order['prescription_id']]
+        else:
+            order['times_ordered'] = 1
+    print(orders)
+    return render_template('debug.html')
+
+    # same thing for completed orders (funcion?)
+    completed_orders = extract_data_to_list(db.execute('SELECT prescription_id FROM orders WHERE completed = 1'), 'prescription_id')
     completed_orders = db.execute('SELECT * FROM prescriptions WHERE prescription_id IN (?)', completed_orders)
     return render_template('orders.html', completed_orders=completed_orders, uncompleted_orders=uncompleted_orders)
