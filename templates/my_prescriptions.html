@@ -95,8 +95,8 @@
                         <p class="col">Repeating</p>
                     </div>
                     <div class="row">
-                        <h4 class="col">Next valid order:</h4>
-                        <p class="col">{{ prescription['next_valid_order'] }}</p>
+                        <h4 class="col">Days until you can order:</h4>
+                        <p class="col">{{ prescription['days_until_next_valid_order'] }}</p>
                     </div>
                     <div class="row">
                         <h4 class="col">Valid from:</h4>
@@ -139,11 +139,7 @@
                         </form> 
                     </div>
                     <div class="row">
-                        <form action="/order_prescription" method="post" class="col">
-                            <input type="hidden" name="prescription_id" value="{{ prescription['prescription_id'] }}">
-                            <button type="submit" class="w-100 btn btn-primary">Order prescription</button>
-                        </form>
-                        
+                        <p>You can no longer order this. Please speak to your doctor if you require more medication.</p>
                     </div>
                     <div class="row">
                         <h4 class="col">Doctor:</h4>

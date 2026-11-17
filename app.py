@@ -392,12 +392,12 @@ def my_prescriptions():
                 else:
                     # get time until next valid order
                     days_until_next_valid_order = next_valid_order_date - todays_date
-                    print('next_valid_order_date:   ', next_valid_order_date)
-                    print('todays_date:   ', todays_date)
-                    print('days_until_next_valid_order:   ', days_until_next_valid_order)
-                    print(type(days_until_next_valid_order))
-                    prescription['days_until_next_valid_order'] = next_valid_order_date.strftime('%d/%m/%Y')
-                    prescription['valid'] = 2
+                    prescription['days_until_next_valid_order'] = days_until_next_valid_order.days
+                    if days_until_next_valid_order.days == 0:
+                        prescription['valid'] = 1
+                    else:
+                        # 2 means orderable in the futre
+                        prescription['valid'] = 2
                 
 
     # display template with users username and list of prescriptions
