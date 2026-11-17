@@ -346,7 +346,7 @@ def my_prescriptions():
     username = extract_data_single(db.execute('SELECT username FROM users WHERE user_id = ?', user_id), 'username')
     # get users prescriptions and add in user info with INNER JOIN
     prescriptions_info = db.execute('SELECT * FROM prescriptions INNER JOIN users ON prescriptions.patient_id = users.user_id WHERE patient_id = ?', user_id)
-    # add doctor name and medicine name into prescriptions info
+    # add doctor name, if prescription is valid to be ordered and medicine name into prescriptions info
     for prescription in prescriptions_info:
         # doctor name
         doctor_id = prescription['doctor_id']
@@ -356,6 +356,50 @@ def my_prescriptions():
         medicine_id = prescription['medicine_id']
         medicine_name = extract_data_single(db.execute('SELECT name FROM generic WHERE medicine_id = ?', medicine_id), 'name')
         prescription['medicine_name'] = medicine_name
+        # check if prescription is valid to be ordered
+        # non repeating prescriptions
+        if prescription['repeating'] == 0:
+            # if has been ordered then valid else not valid
+            if prescription['times_ordered'] != 0:
+                prescription['valid'] = 0
+            else:
+                prescription['valid'] = 1
+        # repeating prescriptions
+        else:
+            repeating_end_date = datetime.strptime(prescription['repeating_end'], '%Y-%m-%d').date()
+            todays_date = datetime.today().date()
+            # if prescription has passed the end date
+            if repeating_end_date < todays_date:
+                prescription['valid'] = 0
+            else:
+                # CALCULATE NEXT VALID ORDER DATE
+                # get last order date
+                last_ordered = prescription['last_ordered']
+                # only check next valid order date if prescription has been ordered before
+                if last_ordered:
+                    last_ordered = datetime.strptime(last_ordered, '%Y-%m-%d').date()
+                    # get order interval
+                    repeat_interval = prescription['repeat_interval']
+                    next_valid_order_date = last_ordered + timedelta(days=repeat_interval)
+                    if next_valid_order_date < todays_date:
+                        next_valid_order_date = todays_date
+                else:
+                    next_valid_order_date = todays_date
+                
+                # check if next valid order date is before end date
+                if next_valid_order_date > repeating_end_date:
+                    prescription['valid'] = 0
+                else:
+                    # get time until next valid order
+                    days_until_next_valid_order = next_valid_order_date - todays_date
+                    print('next_valid_order_date:   ', next_valid_order_date)
+                    print('todays_date:   ', todays_date)
+                    print('days_until_next_valid_order:   ', days_until_next_valid_order)
+                    print(type(days_until_next_valid_order))
+                    prescription['days_until_next_valid_order'] = next_valid_order_date.strftime('%d/%m/%Y')
+                    prescription['valid'] = 2
+                
+
     # display template with users username and list of prescriptions
     return render_template('my_prescriptions.html', username=username, prescriptions=prescriptions_info)
 
@@ -379,14 +423,13 @@ def order_prescription():
         return render_template('error.html', message='Medicine does not exist.')
     
     # validate date and repeat interval
-    
     repeating = prescription_info['repeating']
     if repeating == 1:
         # get todays date
         current_date = datetime.today().date()
         # validate start date
         repeat_start_date = datetime.strptime(prescription_info['repeating_start'], '%Y-%m-%d').date()
-        if repeat_start_date < current_date:
+        if repeat_start_date > current_date:
             return render_template('error.html', message='You cannot order this prescription before the start date.')
         # validate end date
         repeat_end_date = datetime.strptime(prescription_info['repeating_end'], '%Y-%m-%d').date()
@@ -398,21 +441,17 @@ def order_prescription():
         if last_ordered:
             last_ordered = datetime.strptime(last_ordered, '%Y-%m-%d').date()
             next_valid_order_date = last_ordered + timedelta(days=repeat_interval)
-            if next_valid_order_date < current_date:
+            if next_valid_order_date > current_date:
                 return render_template('error.html', message='You cannot order that yet. Please wait until ' + next_valid_order_date.strftime('%d/%m/%Y'))
-        # change format to store in db
-        last_ordered = current_date.strftime('%Y-%m-%d')
-        # update last ordered to now
-        db.execute('UPDATE prescriptions SET last_ordered = ? WHERE prescription_id = ?', last_ordered, prescription_id)
     else:
         # is onetime use so check prescription has not been used before
         if prescription_info['last_ordered']:
             return render_template('error.html', message='This prescription has been ordered and is no longer valid. Please speak to your doctor if you require more medication.')
-        # update last ordered date
-        # change format to store in db
-        last_ordered = datetime.today().date().strftime('%Y-%m-%d')
-        # update last ordered to now
-        db.execute('UPDATE prescriptions SET last_ordered = ? WHERE prescription_id = ?', last_ordered, prescription_id)
+    # update last ordered date
+    # change format to store in db
+    last_ordered = datetime.today().date().strftime('%Y-%m-%d')
+    # update last ordered to now
+    db.execute('UPDATE prescriptions SET last_ordered = ? WHERE prescription_id = ?', last_ordered, prescription_id)
     # update times ordered
     db.execute('UPDATE prescriptions SET times_ordered = ? WHERE prescription_id = ?', extract_data_single(db.execute('SELECT times_ordered FROM prescriptions WHERE prescription_id = ?', prescription_id), 'times_ordered') + 1, prescription_id)
     # return status
