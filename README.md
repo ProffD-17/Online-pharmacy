@@ -50,6 +50,4 @@ I included the password to change a users role in the terra submision.
 
 ## Tasks for next week
 - sort my prescriptions page into valid and invalid prescriptions
-- let pharmacists approve orders
-- make pharmacist role
 - make medicine shop to allow users to buy medicines

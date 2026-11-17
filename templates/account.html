@@ -6,6 +6,8 @@
         <p>Username: {{ account_info['username'] }}</p>
         <p>Email: {{ account_info['email'] }}</p>
         <p>Status: {{ role }}</p>
+        <p>Firstname: {{ account_info['firstname'] }}</p>
+        <p>Lastname: {{ account_info['lastname'] }}</p>
         <form action="/account" method="get">
             <input type="hidden" name="action" value="edit">
             <button type="submit" class="btn btn-primary">Edit</button>
