@@ -56,6 +56,17 @@ def format_string_data(data_string):
     return formated_string
 
 
+# return users role as str or false the account is inactive
+def user_role(user_id):
+    active = extract_data_single(db.execute('SELECT is_active FROM users WHERE user_id = ?', user_id), 'is_active')
+    if not active:
+        return False
+    role_id = extract_data_single(db.execute('SELECT role_id FROM users WHERE user_id = ?', user_id), 'role_id')
+    role = extract_data_single(db.execute('SELECT name FROM roles WHERE role_id = ?', role_id), 'name')
+    return role
+
+
+
 # USERS LOGGIN IN/OUT
 # if user has logged in send to home else to login
 @app.route('/')
@@ -67,7 +78,9 @@ def index():
         if  user_info:
             # get users username and role
             username = extract_data_single(user_info, 'username')
-            role = extract_data_single(db.execute('SELECT name FROM roles WHERE role_id = ?', extract_data_single(user_info, 'role_id')), 'name')
+            role = user_role(user_id)
+            if not role:
+                return render_template('error.html', message='Account is no longer active.')
         else:
             return redirect('/login')
         return render_template('home.html', username=username, role=role)
@@ -208,8 +221,7 @@ def account():
             return render_template('error.html', message='Account could not be found')
         account_info = account_info[0]
         # get users role
-        role_id = extract_data_single(db.execute('SELECT role_id FROM users WHERE user_id = ?', user_id), 'role_id')
-        role = extract_data_single(db.execute('SELECT name FROM roles WHERE role_id = ?', role_id), 'name').capitalize()
+        role = user_role(user_id).capitalize()
         # return edit form if requested
         if request.args.get('action') == 'edit':
             return render_template('account.html', account_info=account_info, action='edit', role=role)
@@ -297,8 +309,7 @@ def make_prescription():
     creator_id = request.form.get('creator_id')
 
     # make sure creator is a doctor
-    role_id = extract_data_single(db.execute('SELECT role_id FROM users WHERE user_id = ?', creator_id), 'role_id')
-    role = extract_data_single(db.execute('SELECT name FROM roles WHERE role_id = ?', role_id), 'name')
+    role = user_role(user_id)
     if role != 'doctor':
         return render_template('error.html', message='Need doctor privileges to create prescriptions.')
     # make sure doctor account is active
@@ -486,8 +497,7 @@ def manage_orders():
     user_id = session.get('user_id')
     if not user_id:
         return render_template('error.html', message='Please log out and login again.')
-    role_id = extract_data_single(db.execute('SELECT role_id FROM users WHERE user_id = ?', user_id), 'role_id')
-    role = extract_data_single(db.execute('SELECT name FROM roles WHERE role_id = ?', role_id), 'name')
+    role = user_role(user_id)
     if role not in ['doctor', 'pharmacist']:
         return render_template('error.html', message='You do not have the privilage for this. You can change your privilages in the accounts page.')
     
@@ -518,5 +528,13 @@ def manage_orders():
     if success:
             return render_template('success.html', message='Marked prescription as uncompleted')
     return render_template('error.html', message='Could not update status of order')
+
+
+# ALLOW USERS TO VIEW ALL THIER PAST ORDERS AND DOCS/PHARMS TO VIEW USERS PAST ORDERS
+@app.route('/order_history', methods=['GET', 'POST'])
+def order_history():
+    if request.method == 'GET':
+        # check user has authorisation to view all past orders
+
     
     

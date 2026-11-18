@@ -49,6 +49,7 @@ I used:
 I included the password to change a users role in the terra submision.
 
 ## Tasks for next week
-- users should be able to view if their order is completed or not
+- users should be able to view thier order history
+- doctors/pharmicists should be able to view all users order history
 - notifications page on account page with status of orders
 - make medicine shop to allow users to buy medicines
