@@ -535,6 +535,15 @@ def manage_orders():
 def order_history():
     if request.method == 'GET':
         # check user has authorisation to view all past orders
-
-    
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect('/login')
+        role = user_role(user_id)
+        if not role:
+            return render_template('error.html', message='Your account is inactive.')
+        if role not in ['doctor', 'pharmacist']:
+            return render_template('error.html', message='You do not have the privilege to view this. Change your privileges in the account page.')
+        # show all past orders and search form
+        orders = db.execute('SELECT * FROM orders JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id JOIN users ON prescriptions.patient_id = users.user_id JOIN generic ON prescriptions.medicine_id = generic.medicine_id')
+        return render_template('order_history.html', orders=orders, mode='all')
     
