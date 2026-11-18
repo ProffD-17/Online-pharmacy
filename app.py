@@ -230,7 +230,6 @@ def account():
                 if current_date < order_completion_date + timedelta(days=HOW_LONG_RECENT_IS):
                     recently_completed_orders.append(order)
             
-
         return render_template('account.html', account_info=account_info, action='view', role=role, uncompleted_orders=uncompleted_orders, recently_completed_orders=recently_completed_orders)
 
     # change account info
