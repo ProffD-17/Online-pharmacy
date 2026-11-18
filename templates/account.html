@@ -23,24 +23,36 @@
                         <h3>In progress</h3>
                     </a>
                     <div id="in-progress" class="collapse">
-                        {% for order in uncompleted_orders %}
-                        <div class="card card-body">
-                            <p>Medicine: {{ order['name'] }}</p>
-                            <p>Ordered: {{ order['order_date'] }}</p>
-                        </div>
-                        {% endfor %}
+                        {% if uncompleted_orders %}
+                            {% for order in uncompleted_orders %}
+                            <div class="card card-body">
+                                <p>Medicine: {{ order['name'] }}</p>
+                                <p>Ordered: {{ order['order_date'] }}</p>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>You have no medicines waiting to be completed</p>
+                        {% endif %}
                     </div>
                     <a class="underlined black-text" data-toggle="collapse" href="#recently-completed" role="button" aria-expanded="false" aria-controls="recently-completed">
                         <h3>Completed in the past week</h3>
                     </a>
                         <div class="collapse" id="recently-completed">
-                        {% for order in recently_completed_orders %}
-                        <div class="card card-body">
-                            <p>Medicine: {{ order['name'] }}</p>
-                            <p>Completed: {{ order['completion_date'] }}</p>
+                        {% if recently_completed_orders %}
+                            {% for order in recently_completed_orders %}
+                            <div class="card card-body">
+                                <p>Medicine: {{ order['name'] }}</p>
+                                <p>Completed: {{ order['completion_date'] }}</p>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>You have no orders completed in the past week.</p>
+                        {% endif %}
                         </div>
-                        {% endfor %}
-                    </div>
+                    <form action="/order_history" method="post">
+                        <input type="hidden" name="patient_id" value="{{ account_info['user_id'] }}">
+                        <button class="btn btn-link" type="submit">View order history</button>
+                    </form>  
                 </div>
             </div>
         </div>
