@@ -197,6 +197,7 @@ def show_medicine_info():
 @app.route('/account', methods=['POST', 'GET'])
 def account():
     if request.method == 'GET':
+        # GET USER INFO
         # get users id
         user_id = session.get('user_id')
         if not user_id:
@@ -212,7 +213,25 @@ def account():
         # return edit form if requested
         if request.args.get('action') == 'edit':
             return render_template('account.html', account_info=account_info, action='edit', role=role)
-        return render_template('account.html', account_info=account_info, action='view', role=role)
+        # GET USERS ORDERS
+        users_orders = db.execute('SELECT * FROM orders JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id JOIN generic ON prescriptions.medicine_id = generic.medicine_id WHERE prescriptions.patient_id = ?', user_id)
+        
+        uncompleted_orders = []
+        HOW_LONG_RECENT_IS = 7
+        recently_completed_orders = []
+        for order in users_orders:
+            # UNCOMPLETED ORDERS
+            if order['completed'] == 0:
+                uncompleted_orders.append(order)
+            else:
+                # ORDERS COMPLETED IN THE PAST 7 DAYS
+                current_date = datetime.today().date()
+                order_completion_date = datetime.strptime(order['completion_date'], '%Y-%m-%d').date()
+                if current_date < order_completion_date + timedelta(days=HOW_LONG_RECENT_IS):
+                    recently_completed_orders.append(order)
+            
+
+        return render_template('account.html', account_info=account_info, action='view', role=role, uncompleted_orders=uncompleted_orders, recently_completed_orders=recently_completed_orders)
 
     # change account info
     # get user_id
@@ -490,6 +509,7 @@ def manage_orders():
     order_id = request.form.get('order_id')
     completed = extract_data_single(db.execute('SELECT completed FROM orders WHERE order_id = ?', order_id), 'completed')
     if completed == 0:
+        db.execute('UPDATE orders SET completion_date = ? WHERE order_id = ?', datetime.today().date().strftime('%Y-%m-%d'), order_id)
         success = db.execute('UPDATE orders SET completed = 1 WHERE order_id = ?', order_id)
         if success:
                 return render_template('success.html', message='Marked prescription as completed')

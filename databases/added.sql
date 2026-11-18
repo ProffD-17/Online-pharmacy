@@ -47,5 +47,6 @@ CREATE TABLE "orders" (
     "prescription_id" INTEGER NOT NULL,
     "completed" INTEGER NOT NULL,
     "order_date" TEXT NOT NULL,
+    "completion_date" TEXT,
     FOREIGN KEY (prescription_id) REFERENCES prescriptions(prescription_id)
 );

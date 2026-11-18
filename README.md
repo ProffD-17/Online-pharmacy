@@ -49,5 +49,6 @@ I used:
 I included the password to change a users role in the terra submision.
 
 ## Tasks for next week
-- sort my prescriptions page into valid and invalid prescriptions
+- users should be able to view if their order is completed or not
+- notifications page on account page with status of orders
 - make medicine shop to allow users to buy medicines

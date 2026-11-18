@@ -1,17 +1,36 @@
 {% extends 'layout.html' %}
 {% block body %}
 
-    <h1>Account: {{ account_info['username'] }}</h1>
+    <h1 class="text-center">Account: {{ account_info['username'] }}</h1>
     {% if action == 'view' %}
-        <p>Username: {{ account_info['username'] }}</p>
-        <p>Email: {{ account_info['email'] }}</p>
-        <p>Status: {{ role }}</p>
-        <p>Firstname: {{ account_info['firstname'] }}</p>
-        <p>Lastname: {{ account_info['lastname'] }}</p>
-        <form action="/account" method="get">
-            <input type="hidden" name="action" value="edit">
-            <button type="submit" class="btn btn-primary">Edit</button>
-        </form>
+        <div class="container">
+            <div class="row">
+                <div class="col text-center">
+                    <h2>Account Info</h2>
+                    <p>Username: <strong>{{ account_info['username'] }}</strong></p>
+                    <p>Email: <strong>{{ account_info['email'] }}</strong></p>
+                    <p>Status: <strong>{{ role }}</strong></p>
+                    <p>Firstname: <strong>{{ account_info['firstname'] }}</strong></p>
+                    <p>Lastname: <strong>{{ account_info['lastname'] }}</strong></p>
+                    <form action="/account" method="get">
+                        <input type="hidden" name="action" value="edit">
+                        <button type="submit" class="btn btn-primary">Edit</button>
+                    </form>
+                </div>
+                <div class="col text-center">
+                    <h2>Orders</h2>
+                    <h3>In progress</h3>
+                    {% for order in uncompleted_orders %}
+                        <p>{{ order['name'] }}</p>
+                    {% endfor %}
+                    <h3>Completed in the past week</h3>
+                    {% for order in recently_completed_orders %}
+                        <p>{{ order['name'] }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
     {% elif action == 'edit' %}
         <h2>Edit account info</h2>
         <form action="/account" method="post" class="border">
