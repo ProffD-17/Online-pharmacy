@@ -553,7 +553,7 @@ def order_history():
     lastname = request.form.get('lastname')
     if not (firstname or lastname):
         # user accessing their own order history so already have person id
-        orders_info = db.execute('SELECT * FROM orders JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id JOIN generic ON generic.medicine_id = prescriptions.medicine_id WHERE patient_id = ?', user_id)
+        orders_info = db.execute('SELECT * FROM orders JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id JOIN generic ON generic.medicine_id = prescriptions.medicine_id JOIN users ON prescriptions.patient_id = users.user_id WHERE patient_id = ?', user_id)
         return render_template('order_history.html', orders=orders_info)
         
     person_id = db.execute('SELECT user_id FROM users WHERE firstname = ? AND lastname = ?', firstname, lastname)

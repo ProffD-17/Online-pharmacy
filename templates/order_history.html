@@ -34,7 +34,8 @@
                     <tbody>
                     {% for order in orders %}
                         <tr>
-                            <td>{% if name %}
+                            <td>
+                                {% if name %}
                                     {{ name }}
                                 {% else %}
                                     {{ order['firstname'] }} {{ order['lastname'] }}
