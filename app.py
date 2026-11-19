@@ -533,9 +533,9 @@ def manage_orders():
 # ALLOW USERS TO VIEW ALL THIER PAST ORDERS AND DOCS/PHARMS TO VIEW USERS PAST ORDERS
 @app.route('/order_history', methods=['GET', 'POST'])
 def order_history():
+    user_id = session.get('user_id')
     if request.method == 'GET':
         # check user has authorisation to view all past orders
-        user_id = session.get('user_id')
         if not user_id:
             return redirect('/login')
         role = user_role(user_id)
@@ -545,5 +545,28 @@ def order_history():
             return render_template('error.html', message='You do not have the privilege to view this. Change your privileges in the account page.')
         # show all past orders and search form
         orders = db.execute('SELECT * FROM orders JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id JOIN users ON prescriptions.patient_id = users.user_id JOIN generic ON prescriptions.medicine_id = generic.medicine_id')
-        return render_template('order_history.html', orders=orders, mode='all')
-    
+        name = orders[0]['firstname'] + orders[0]['lastname']
+        return render_template('order_history.html', orders=orders, mode='all', name=name)
+    # show prescriptions for a specific patient
+    # get firstname either from search input or with user id
+    firstname = request.form.get('firstname')
+    lastname = request.form.get('lastname')
+    if not (firstname or lastname):
+        # user accessing their own order history so already have person id
+        orders_info = db.execute('SELECT * FROM orders JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id JOIN generic ON generic.medicine_id = prescriptions.medicine_id WHERE patient_id = ?', user_id)
+        return render_template('order_history.html', orders=orders_info)
+        
+    person_id = db.execute('SELECT user_id FROM users WHERE firstname = ? AND lastname = ?', firstname, lastname)
+    if not person_id:
+        return render_template('error.html', message='Person not found')
+    name = firstname + ' ' + lastname
+    if len(person_id) > 1:
+        # more than one person with the name searched for
+        people_ids = extract_data_to_list(person_id, 'user_id')
+        peoples_prescription_ids = extract_data_to_list(db.execute('SELECT prescription_id FROM prescriptions WHERE patient_id IN (?)', people_ids), 'prescription_id')
+        orders = db.execute('SELECT * FROM orders JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id JOIN generic ON generic.medicine_id = prescription.medicine_id WHERE prescription_id IN (?)', peoples_prescription_ids)
+        
+        return render_template('order_history.html', orders=orders, name=name)
+    # only one person
+    orders = db.execute('SELECT * FROM orders JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id JOIN generic ON prescriptions.medicine_id = generic.medicine_id WHERE patient_id = ?', person_id[0]['user_id'])
+    return render_template('order_history.html', orders=orders, name=name)
