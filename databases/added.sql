@@ -50,3 +50,12 @@ CREATE TABLE "orders" (
     "completion_date" TEXT,
     FOREIGN KEY (prescription_id) REFERENCES prescriptions(prescription_id)
 );
+
+CREATE TABLE "prescription_requests" (
+    "prescription_request_id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "patient_id" INTEGER NOT NULL,
+    "medicine_id" INTEGER NOT NULL,
+    "request_date" TEXT NOT NULL,
+    FOREIGN KEY (patient_id) REFERENCES users(user_id),
+    FOREIGN KEY (medicine_id) REFERENCES generic(medicine_id)
+);

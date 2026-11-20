@@ -50,3 +50,4 @@ I included the password to change a users role in the terra submision.
 
 ## Tasks for next week
 - make medicine shop to allow users to buy medicines
+- let users requests prescriptions

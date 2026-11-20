@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+{% block body %}
+    <div class="text-center">
+        <h1>Request prescription</h1>
+        <p>Request a prescripiton from your doctor.</p>
+    </div>
+    
+    <form action="/request_prescription" method="post" class="m-3">
+        <div class="form-group">
+            <label for="medicine">Medicine:</label>
+            <select name="medicine_id" id="medicine" class="form-control">
+                <option selected value="">Select medicine</option>
+                {% for medicine in medicines_info %}
+                    <option value="{{ medicine['medicine_id'] }}">{{ medicine['name'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <input type="hidden" value="{{ patient_id }}" name="patient_id">
+        <button type="submit" class="btn btn-primary">Request prescription</button>
+    </form>
+
+{% endblock %}
