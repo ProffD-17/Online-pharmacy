@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% block body %}
+    <div class="text-center">
+        <h1>Make prescription</h1>
+        <p>There is more than one patient with the name {{ patients_info['firstname'] }} {{ patients_info['lastname'] }}. Please select the <strong>email</strong> of the patient you would like to prescribe {{ medicine_name }}.</p>
+        <form action="/make_prescription" method="post" class="mx-3">
+            {% for user_info in patients_info %}
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" name="email" value="{{ user_info['email'] }}">
+                    <label for="email-for-user{{ user_info['user_id'] }}" class="form-check-label">{{ user_info['email'] }}</label>
+                </div>
+                <input type="hidden" value="{{ patient_firstname }}" name="patient_firstname">
+                <input type="hidden" value="{{ patient_lastname }}" name="patient_lastname">
+                <input type="hidden" value="{{ repeating }}" name="repeating">
+                <input type="hidden" value="{{ repeating_start_date }}" name="repeating_start_date">
+                <input type="hidden" value="{{ repeating_end_date }}" name="repeating_end_date">
+                <input type="hidden" value="{{ repeat_interval }}" name="repeat_interval">
+                <input type="hidden" value="{{ medicine_id }}" name="medicine_id">
+                <input type="hidden" value="{{ creator_id }}" name="creator_id">
+            {% endfor %}
+            <button class="btn btn-primary mt-3">Select email</button>
+        </form>
+    </div>
+
+{% endblock %}

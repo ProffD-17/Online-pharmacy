@@ -307,7 +307,16 @@ def make_prescription():
     repeat_interval = request.form.get('repeat_interval')
     medicine_id = request.form.get('medicine_id')
     creator_id = request.form.get('creator_id')
-
+    email = request.form.get('email') # only from make prescription email check
+    print('patient_firstname:    ', patient_firstname)
+    print('patient_lastname:    ', patient_lastname)
+    print('repeating:    ', repeating)
+    print('repeating_start_date_str:    ', repeating_start_date_str)
+    print('repeating_end_date_str:    ', repeating_end_date_str)
+    print('repeat_interval:    ', repeat_interval)
+    print('medicine_id:    ', medicine_id)
+    print('creator_id:    ', creator_id)
+    print('email:    ', email)
     # make sure creator is a doctor
     role = user_role(user_id)
     if role != 'doctor':
@@ -321,12 +330,22 @@ def make_prescription():
     patient_info = db.execute('SELECT * FROM users WHERE firstname = ? AND lastname = ?', patient_firstname, patient_lastname)
     if not patient_info:
         return render_template('error.html', message='Patient does not exist.')
+    # handle more than one patient with the same name
+    if len(patient_info) > 1:
+        if not email:
+            # get email
+            medicine_name = extract_data_single(db.execute('SELECT name FROM generic WHERE medicine_id = ?', medicine_id), 'name')
+            return render_template('make_prescription_email_check.html', patients_info=patient_info, patient_firstname=patient_firstname, patient_lastname=patient_lastname, repeating=repeating, repeating_start_date=repeating_start_date_str, repeating_end_date=repeating_end_date_str, repeat_interval=repeat_interval, medicine_id=medicine_id, creator_id=creator_id, medicine_name=medicine_name)
+        patient_info = db.execute('SELECT * FROM users WHERE firstname = ? AND lastname = ? AND email = ?', patient_firstname, patient_lastname, email)
     # check patient is active
     active = extract_data_single(patient_info, 'is_active')
     if active != 1:
         return render_template('error.html', message='Patient account is no longer active.')
 
     # check start and end times are after current time
+    # email form returns it as 'None' so check for that
+    if repeating == 'None':
+        repeating = False
     if repeating:
         if (not repeating_end_date_str) or (not repeating_start_date_str) or (not repeat_interval):
             return render_template('error.html', message='Please provide start date, end date and repeat interval for repeating prescription.')
