@@ -559,6 +559,10 @@ def order_history():
             return render_template('order_history.html', orders=orders, mode='all')
         # user accessing thier own info
         orders_info = db.execute('SELECT * FROM orders JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id JOIN generic ON generic.medicine_id = prescriptions.medicine_id JOIN users ON prescriptions.patient_id = users.user_id WHERE patient_id = ?', user_id)
+        if not orders_info:
+            # user has no orders
+            name = extract_data_single(db.execute('SELECT firstname FROM users WHERE user_id = ?', user_id), 'firstname') + ' ' + extract_data_single(db.execute('SELECT lastname FROM users WHERE user_id = ?', user_id), 'lastname')
+            return render_template('order_history.html', name=name)
         name = orders_info[0]['firstname'] + ' ' + orders_info[0]['lastname']
         return render_template('order_history.html', orders=orders_info, name=name)
 
