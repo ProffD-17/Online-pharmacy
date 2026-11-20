@@ -564,6 +564,8 @@ def order_history():
         
     person_id = db.execute('SELECT user_id FROM users WHERE firstname = ? AND lastname = ?', firstname, lastname)
     if not person_id:
+        # possible that only firstname or lastname provided
+        person_id = db.execute('SELECT user_id FROM users WHERE firstname = ? OR lastname = ?', firstname, lastname)
         return render_template('error.html', message='Person not found')
     name = firstname + ' ' + lastname
     if len(person_id) > 1:
