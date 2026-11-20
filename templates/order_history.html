@@ -15,13 +15,19 @@
                             <label for="lastname" class="form-label">Lastname</label>
                             <input type="text" class="form-control" name="lastname" id="lastname">
                         </div>
+                        <input type="hidden" name="search" value="true">
                         <button class="btn btn-primary" type="submit">Search</button>
                     </form>
                 </search>
             </section>
             <section>
             <h2>View all orders</h2>
+    {% else %}
+            <h2>
+            Orders for patients named {{ name }}
+            </h2>
     {% endif %}
+
                 <table class="table table-hover">
                     <thead>
                         <tr>
