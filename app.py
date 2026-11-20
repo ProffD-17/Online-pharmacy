@@ -551,8 +551,8 @@ def order_history():
     # get firstname either from search input or with user id
     firstname = request.form.get('firstname')
     lastname = request.form.get('lastname')
+    # HANDLE PATIENT ACCESSING THIER PERSONAL ORDER HISTORY OR EMPTY SEARCH
     if not (firstname or lastname):
-        # user accessing their own order history so already have person id or empty search
         if request.form.get('search'):
             # empty search form
             orders = db.execute('SELECT * FROM orders JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id JOIN generic ON generic.medicine_id = prescriptions.medicine_id')
@@ -561,13 +561,17 @@ def order_history():
         orders_info = db.execute('SELECT * FROM orders JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id JOIN generic ON generic.medicine_id = prescriptions.medicine_id JOIN users ON prescriptions.patient_id = users.user_id WHERE patient_id = ?', user_id)
         name = orders_info[0]['firstname'] + ' ' + orders_info[0]['lastname']
         return render_template('order_history.html', orders=orders_info, name=name)
-        
+
+    
+    # HANDLE SEARCHING FOR SPECIFIC PEOPLE
+    name = firstname + ' ' + lastname
     person_id = db.execute('SELECT user_id FROM users WHERE firstname = ? AND lastname = ?', firstname, lastname)
     if not person_id:
         # possible that only firstname or lastname provided
         person_id = db.execute('SELECT user_id FROM users WHERE firstname = ? OR lastname = ?', firstname, lastname)
-        return render_template('error.html', message='Person not found')
-    name = firstname + ' ' + lastname
+        if not person_id:
+            return render_template('order_history.html', name=name)
+
     if len(person_id) > 1:
         # more than one person with the name searched for
         people_ids = extract_data_to_list(person_id, 'user_id')

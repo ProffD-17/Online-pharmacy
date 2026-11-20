@@ -22,38 +22,39 @@
             </section>
             <section>
             <h2>View all orders</h2>
-    {% else %}
-            <h2>
-            Orders for patients named {{ name }}
-            </h2>
-    {% endif %}
-
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Patient name</th>
-                            <th>Order date</th>
-                            <th>Completed</th>
-                            <th>Medicine</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for order in orders %}
-                        <tr>
-                            <td>
-                                {% if name %}
-                                    {{ name }}
-                                {% else %}
-                                    {{ order['firstname'] }} {{ order['lastname'] }}
-                                {% endif %}
-                            </td>
-                            <td>{{ order['order_date'] }}</td>
-                            <td>{% if order['completed'] == 1 %}Yes{% else %}No{% endif %}</td>
-                            <td>{{ order['name'] }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+            {% else %}
+            <h2>Orders for patients named {{ name }}</h2>
+            {% endif %}
+                {% if orders %}
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Patient name</th>
+                                <th>Order date</th>
+                                <th>Completed</th>
+                                <th>Medicine</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td>
+                                    {% if name %}
+                                        {{ name }}
+                                    {% else %}
+                                        {{ order['firstname'] }} {{ order['lastname'] }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ order['order_date'] }}</td>
+                                <td>{% if order['completed'] == 1 %}Yes{% else %}No{% endif %}</td>
+                                <td>{{ order['name'] }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>{{ name }} has no order history.</p>
+                {% endif %}
             </section>
     
 
