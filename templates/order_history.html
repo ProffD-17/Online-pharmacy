@@ -6,7 +6,7 @@
         <section>
             <h2 class="mt-4">Search for a patients order history</h2>
                 <search>
-                    <form action="/order_history" method="post" class="border m-3 mb-5">
+                    <form action="/order_history" method="post" class="border m-3">
                         <div class="form-group">
                             <label for="firstname" class="form-label">Firstname</label>
                             <input type="text" name="firstname" id="firstname" class="form-control">
@@ -21,9 +21,15 @@
                 </search>
             </section>
             <section>
-            <h2>View all orders</h2>
+                <form action="/order_history" method="post">
+                    <input type="hidden" value="{{ user_id }}">
+                    <button type="submit" class="btn btn-link">My order history</button>
+                </form>
+            </section>
+            <section>
+            <h2 class="mt-2">View all orders</h2>
             {% else %}
-            <h2>Orders for patients named {{ name }}</h2>
+            <h2>Orders for patient(s) named {{ name }}</h2>
             {% endif %}
                 {% if orders %}
                     <table class="table table-hover">
@@ -47,7 +53,12 @@
                                 </td>
                                 <td>{{ order['order_date'] }}</td>
                                 <td>{% if order['completed'] == 1 %}Yes{% else %}No{% endif %}</td>
-                                <td>{{ order['name'] }}</td>
+                                <td>
+                                    <form action="/medicine_info" method="get">
+                                        <input type="hidden" name="medicine_id" value="{{ order['medicine_id'] }}">
+                                        <button type="submit" class="btn btn-link">{{ order['name'] }}</button>
+                                    </form>
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>

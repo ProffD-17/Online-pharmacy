@@ -565,7 +565,7 @@ def order_history():
         # show all past orders and search form
         orders = db.execute('SELECT * FROM orders JOIN prescriptions ON orders.prescription_id = prescriptions.prescription_id JOIN users ON prescriptions.patient_id = users.user_id JOIN generic ON prescriptions.medicine_id = generic.medicine_id')
         name = orders[0]['firstname'] + orders[0]['lastname']
-        return render_template('order_history.html', orders=orders, mode='all')
+        return render_template('order_history.html', orders=orders, mode='all', user_id=user_id)
     # show prescriptions for a specific patient
     # get firstname either from search input or with user id
     firstname = request.form.get('firstname')
