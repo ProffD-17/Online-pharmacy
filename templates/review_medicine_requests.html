@@ -4,18 +4,32 @@
         <h1>Review medicine requests</h1>
         <p>requests for medicine from patients will appear here.</p>
     </div>
-    
-    {% for request in medicine_requests %}
-        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#request{{ request['medicine_request_id'] }}" aria-expanded="false" aria-controls="request{{ request['medicine_request_id'] }}">
-            thing
-        </button>
-        <div class="collapse" id="request{{ request['medicine_request_id'] }}">
-            <div class="card">
-                <div class="card-body">
-                    <p>Medicine: {{ request['name'] }}</p>
+    <div class="container">
+        {% for request in medicine_requests %}
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#request{{ request['medicine_request_id'] }}" aria-expanded="false" aria-controls="request{{ request['medicine_request_id'] }}">
+                        {{ request['name'] }}
+                    </button>
+                    <div class="collapse" id="request{{ request['medicine_request_id'] }}">
+                        <div class="card">
+                            <div class="card-body">
+                                <p>Medicine: <strong>{{ request['name'] }}</strong></p>
+                                <p>Patient: <strong>{{ request['firstname'] + ' ' + request['lastname'] }}</strong></p>
+                                <p>Request date: <strong>{{ request['request_date'] }}</strong></p>
+                                <p>Request reason(from patient): 
+                                    {% if request['request_reason'] %}
+                                        <strong>{{ request['request_reason'] }}</strong>
+                                    {% else %}
+                                        <strong>No reason provided.</strong>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
 
 {% endblock %}

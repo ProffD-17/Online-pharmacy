@@ -533,8 +533,9 @@ def request_medicine():
     valid_medicine = db.execute('SELECT * FROM generic WHERE medicine_id = ?', requested_medicine_id)
     if not valid_medicine:
         return render_template('error.html', message='Medicine does not exist.')
+    request_reason = request.form.get('request_reason')
     # INSERT INTO PRESCRIPITON REQUESTS TABLE
-    if db.execute('INSERT INTO medicine_requests (patient_id, medicine_id, request_date, status) VALUES (?, ?, ?, ?)', patient_id, requested_medicine_id, today.strftime('%Y-%m-%d'), 'in_review'):
+    if db.execute('INSERT INTO medicine_requests (patient_id, medicine_id, request_date, status, request_reason) VALUES (?, ?, ?, ?, ?)', patient_id, requested_medicine_id, today.strftime('%Y-%m-%d'), 'in_review', request_reason):
         return render_template('success.html', message='Requested medicine.')
     return render_template('error.html', message='Request not registered. Please try again and phone us if this error persists.')
 

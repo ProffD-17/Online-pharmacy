@@ -15,6 +15,10 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="form-group">
+            <label for="request-reason">Request reason:</label>
+            <textarea name="request_reason" id="request-reason" class="form-control"></textarea>
+        </div>
         <input type="hidden" value="{{ patient_id }}" name="patient_id">
         <button type="submit" class="btn btn-primary">Request medicine</button>
     </form>

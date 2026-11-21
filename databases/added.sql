@@ -57,6 +57,7 @@ CREATE TABLE "medicine_requests" (
     "medicine_id" INTEGER NOT NULL,
     "request_date" TEXT NOT NULL,
     "status" TEXT NOT NULL CHECK("status" in ('approved', 'denied', 'in_review')),
+    "request_reason" TEXT,
     FOREIGN KEY (patient_id) REFERENCES users(user_id),
     FOREIGN KEY (medicine_id) REFERENCES generic(medicine_id)
 );
