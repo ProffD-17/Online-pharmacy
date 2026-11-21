@@ -541,16 +541,31 @@ def request_medicine():
 
 
 # allow doctors to review medicine requests and see all past requests
-@app.route('/review_medicine_requests')
+@app.route('/review_medicine_requests', methods=['GET', 'POST'])
 def review_medicine_requests():
-    # check user is doctor
-    if user_role(session.get('user_id')) != 'doctor':
-        return render_template('error.html', message='You do not have the permission to view this.')
-    # get request info like patient info, medicine info
-    medicine_requests = db.execute('SELECT * FROM medicine_requests JOIN users ON medicine_requests.patient_id = users.user_id JOIN generic ON medicine_requests.medicine_id = generic.medicine_id')
-    return render_template('review_medicine_requests.html', medicine_requests=medicine_requests)
-    
-
+    if request.method == 'GET':
+        # SHOW ALL REQUESTS
+        # check user is doctor
+        if user_role(session.get('user_id')) != 'doctor':
+            return render_template('error.html', message='You do not have the permission to view this.')
+        # get request info like patient info, medicine info
+        medicine_requests = db.execute('SELECT * FROM medicine_requests JOIN users ON medicine_requests.patient_id = users.user_id JOIN generic ON medicine_requests.medicine_id = generic.medicine_id')
+        return render_template('review_medicine_requests.html', medicine_requests=medicine_requests)
+    # CHANGE REQUEST STATUS
+    # TODO get the descision and maybe make the approve one submit to make prescription with info
+    desicion = request.form.get('decision')
+    VALID_DESICIONS = ['approved', 'denied']
+    if desicion not in VALID_DESICIONS:
+        return render_template('error.html', message='Invalid desicion')
+    request_id = int(request.form.get('request_id'))
+    requests = extract_data_to_list(db.execute('SELECT medicine_request_id FROM medicine_requests'), 'medicine_request_id')
+    if request_id not in requests:
+        return render_template('error.html', message='That request doesnt exist')
+    if db.execute('UPDATE medicine_requests SET status = ? WHERE medicine_request_id = ?', desicion, request_id):
+        if desicion == 'denied':
+            return render_template('success.html', message='Denied request.')
+        return redirect('/make_prescripiton')
+    return render_template('error.html', message='Could not approve/deny order')
 
 
 # allow pharmacists and doctors to manage patients ordering prescriptions

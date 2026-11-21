@@ -24,6 +24,25 @@
                                         <strong>No reason provided.</strong>
                                     {% endif %}
                                 </p>
+                                <p>Status: 
+                                    <strong>
+                                        {% if request['status'] == 'in_review' %}
+                                            Waiting to be reviewed
+                                        {% else %}
+                                            {{ request['status'].capitalize() }}
+                                        {% endif %}
+                                    </strong>
+                                </p>
+                                <form action="/review_medicine_requests" method="post" class="mb-2">
+                                    <input type="hidden" name="request_id" value="{{ request['medicine_request_id'] }}">
+                                    <input type="hidden" name="decision" value="approved">
+                                    <button type="submit" class="btn btn-primary">Approve</button>
+                                </form>
+                                <form action="/review_medicine_requests" method="post">
+                                    <input type="hidden" name="request_id" value="{{ request['medicine_request_id'] }}">
+                                    <input type="hidden" name="decision" value="denied">
+                                    <button type="submit" class="btn btn-primary">Deny</button>
+                                </form>
                             </div>
                         </div>
                     </div>
