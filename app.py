@@ -509,15 +509,15 @@ def order_prescription():
     return render_template('error.html', message='Failed to order prescription.')
 
 
-@app.route('/request_prescription', methods=['GET', 'POST'])
-def request_prescription():
+@app.route('/request_medicine', methods=['GET', 'POST'])
+def request_medicine():
     if request.method == 'GET':
         # RETURN FORM FOR REQUESTING PRESCRIPTION
         medicines_info = db.execute('SELECT * FROM generic')
         patient_id = session.get('user_id')
         if not patient_id:
             return redirect('/login')
-        return render_template('request_prescription.html', medicines_info=medicines_info, patient_id=patient_id)
+        return render_template('request_medicine.html', medicines_info=medicines_info, patient_id=patient_id)
     # HANDLE PRESCRIPITON REQUESTS
     today = datetime.today().date()
     # get info from form and validate it
@@ -534,8 +534,8 @@ def request_prescription():
     if not valid_medicine:
         return render_template('error.html', message='Medicine does not exist.')
     # INSERT INTO PRESCRIPITON REQUESTS TABLE
-    if db.execute('INSERT INTO prescription_requests (patient_id, medicine_id, request_date) VALUES (?, ?, ?)', patient_id, requested_medicine_id, today.strftime('%Y-%m-%d')):
-        return render_template('success.html', message='Requested prescription.')
+    if db.execute('INSERT INTO medicine_requests (patient_id, medicine_id, request_date) VALUES (?, ?, ?)', patient_id, requested_medicine_id, today.strftime('%Y-%m-%d')):
+        return render_template('success.html', message='Requested medicine.')
     return render_template('error.html', message='Request not registered. Please try again and phone us if this error persists.')
 
 

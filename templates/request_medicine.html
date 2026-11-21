@@ -1,11 +1,11 @@
 {% extends 'layout.html' %}
 {% block body %}
     <div class="text-center">
-        <h1>Request prescription</h1>
-        <p>Request a prescripiton from your doctor.</p>
+        <h1>Request medicine</h1>
+        <p>Request a medicine from your doctor. Your doctor will handle the dose, cycle length <abbr title="excetera">ect.</abbr> if your request is aproved</p>
     </div>
     
-    <form action="/request_prescription" method="post" class="m-3">
+    <form action="/request_medicine" method="post" class="m-3">
         <div class="form-group">
             <label for="medicine">Medicine:</label>
             <select name="medicine_id" id="medicine" class="form-control">
@@ -16,7 +16,7 @@
             </select>
         </div>
         <input type="hidden" value="{{ patient_id }}" name="patient_id">
-        <button type="submit" class="btn btn-primary">Request prescription</button>
+        <button type="submit" class="btn btn-primary">Request medicine</button>
     </form>
 
 {% endblock %}

@@ -51,8 +51,8 @@ CREATE TABLE "orders" (
     FOREIGN KEY (prescription_id) REFERENCES prescriptions(prescription_id)
 );
 
-CREATE TABLE "prescription_requests" (
-    "prescription_request_id" INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE "medicine_requests" (
+    "medicine_request_id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "patient_id" INTEGER NOT NULL,
     "medicine_id" INTEGER NOT NULL,
     "request_date" TEXT NOT NULL,

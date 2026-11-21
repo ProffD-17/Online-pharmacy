@@ -49,5 +49,6 @@ I used:
 I included the password to change a users role in the terra submision.
 
 ## Tasks for next week
-- make medicine shop to allow users to buy medicines
-- let users requests prescriptions
+- make medicine shop to allow users to buy medicines(probably not because my db doesnt have prices)
+- allow doctors to view informations on prescription requests and approve or deny them
+- users should be able to see if thier request is waiting to be reviewed, approved or denied
