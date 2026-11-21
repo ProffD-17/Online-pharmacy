@@ -33,7 +33,13 @@
             <div class="col mt-2">
                 <a class="btn btn-primary w-100 h-100" href="/order_history">Order history</a>
             </div>
+                {% if role == 'doctor' %}
+                    <div class="col mt-2">
+                        <a href="/review_medicine_requests" class="btn btn-primary w-100 h-100">Rewiew medicine requests</a>
+                    </div>
+                {% endif %}
             {% endif %}
+
         </div>
         
     </div>

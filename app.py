@@ -534,9 +534,21 @@ def request_medicine():
     if not valid_medicine:
         return render_template('error.html', message='Medicine does not exist.')
     # INSERT INTO PRESCRIPITON REQUESTS TABLE
-    if db.execute('INSERT INTO medicine_requests (patient_id, medicine_id, request_date) VALUES (?, ?, ?)', patient_id, requested_medicine_id, today.strftime('%Y-%m-%d')):
+    if db.execute('INSERT INTO medicine_requests (patient_id, medicine_id, request_date, status) VALUES (?, ?, ?, ?)', patient_id, requested_medicine_id, today.strftime('%Y-%m-%d'), 'in_review'):
         return render_template('success.html', message='Requested medicine.')
     return render_template('error.html', message='Request not registered. Please try again and phone us if this error persists.')
+
+
+# allow doctors to review medicine requests and see all past requests
+@app.route('/review_medicine_requests')
+def review_medicine_requests():
+    # check user is doctor
+    if user_role(session.get('user_id')) != 'doctor':
+        return render_template('error.html', message='You do not have the permission to view this.')
+    # get request info like patient info, medicine info
+    medicine_requests = db.execute('SELECT * FROM medicine_requests JOIN users ON medicine_requests.patient_id = users.user_id JOIN generic ON medicine_requests.medicine_id = generic.medicine_id')
+    return render_template('review_medicine_requests.html', medicine_requests=medicine_requests)
+    
 
 
 
