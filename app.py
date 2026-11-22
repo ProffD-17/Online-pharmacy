@@ -293,7 +293,24 @@ def make_prescription():
         return redirect('/login')   
     # return create prescription form if got here by link
     if request.method == 'GET':
+        # check if got here by redirect from approving medicine request
         medicines = db.execute('SELECT * FROM generic')
+        if session.get('approved_request'):
+            # get info about approved request
+            medicine_request_info = db.execute('SELECT * FROM medicine_requests WHERE medicine_request_id = ?', session.get('approved_request'))
+            if not medicine_request_info:
+                return render_template('error.html', message='Cannot create prescription.')
+            medicine_request_info = medicine_request_info[0]
+            medicine_request_medicine_id = medicine_request_info['medicine_id']
+            patient_id = medicine_request_info['patient_id']
+            patient_names = db.execute('SELECT firstname, lastname FROM users WHERE user_id = ?', patient_id)
+            if not patient_names:
+                return render_template('error.html', message='Patient does not exist.')
+            patient_firstname = extract_data_single(patient_names, 'firstname')
+            patient_lastname = extract_data_single(patient_names, 'lastname')
+            session['approved_request'] = False
+            return render_template('make_prescription.html', medicines=medicines, user_id=user_id, requested_medicine_id=medicine_request_medicine_id, patient_firstname=patient_firstname, patient_lastname=patient_lastname)
+
         return render_template('make_prescription.html', medicines=medicines, user_id=user_id)
     # create a prescription with info from the form
 
@@ -308,15 +325,6 @@ def make_prescription():
     medicine_id = request.form.get('medicine_id')
     creator_id = request.form.get('creator_id')
     email = request.form.get('email') # only from make prescription email check
-    print('patient_firstname:    ', patient_firstname)
-    print('patient_lastname:    ', patient_lastname)
-    print('repeating:    ', repeating)
-    print('repeating_start_date_str:    ', repeating_start_date_str)
-    print('repeating_end_date_str:    ', repeating_end_date_str)
-    print('repeat_interval:    ', repeat_interval)
-    print('medicine_id:    ', medicine_id)
-    print('creator_id:    ', creator_id)
-    print('email:    ', email)
     # make sure creator is a doctor
     role = user_role(user_id)
     if role != 'doctor':
@@ -552,7 +560,6 @@ def review_medicine_requests():
         medicine_requests = db.execute('SELECT * FROM medicine_requests JOIN users ON medicine_requests.patient_id = users.user_id JOIN generic ON medicine_requests.medicine_id = generic.medicine_id')
         return render_template('review_medicine_requests.html', medicine_requests=medicine_requests)
     # CHANGE REQUEST STATUS
-    # TODO get the descision and maybe make the approve one submit to make prescription with info
     desicion = request.form.get('decision')
     VALID_DESICIONS = ['approved', 'denied']
     if desicion not in VALID_DESICIONS:
@@ -564,7 +571,9 @@ def review_medicine_requests():
     if db.execute('UPDATE medicine_requests SET status = ? WHERE medicine_request_id = ?', desicion, request_id):
         if desicion == 'denied':
             return render_template('success.html', message='Denied request.')
-        return redirect('/make_prescripiton')
+        # store info in session
+        session['approved_request'] = request_id
+        return redirect('/make_prescription') 
     return render_template('error.html', message='Could not approve/deny order')
 
 

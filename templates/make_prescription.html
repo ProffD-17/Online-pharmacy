@@ -5,11 +5,11 @@
     <form action="/make_prescription" method="post" class="border">
         <div class="form-group">
             <label for="patient-firstname" class="form-label">Patient Firstname</label>
-            <input type="text" class="form-control" id="patient-firstname" required name="patient_firstname">
+            <input type="text" class="form-control" id="patient-firstname" required name="patient_firstname" {% if patient_firstname %} value="{{ patient_firstname }}"{% endif %}>
         </div>
         <div class="form-group">
             <label for="patient-lastname" class="form-label">Patient Lastname</label>
-            <input type="text" class="form-control" id="patient-lastname" required name="patient_lastname">
+            <input type="text" class="form-control" id="patient-lastname" required name="patient_lastname" {% if patient_lastname %} value="{{ patient_lastname }}"{% endif %}>
         </div>
         <div class="form-group"></div>
             <div class="form-check">
@@ -30,7 +30,7 @@
             <label for="medicine_name" class="form-label">Medicine name</label>
             <select name="medicine_id" id="medicine-name">
                 {% for medicine in medicines %}
-                    <option value="{{ medicine['medicine_id'] }}">{{ medicine['name'] }}</option>
+                    <option value="{{ medicine['medicine_id'] }}" {% if medicine['medicine_id'] == requested_medicine_id %}selected{% endif %}>{{ medicine['name'] }}</option>
                 {% endfor %}
             </select>
         </div>

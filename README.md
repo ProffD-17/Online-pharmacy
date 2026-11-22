@@ -50,5 +50,6 @@ I included the password to change a users role in the terra submision.
 
 ## Tasks for next week
 - make medicine shop to allow users to buy medicines(probably not because my db doesnt have prices)
-- allow doctors to view informations on prescription requests and approve or deny them
+- when doc aproves medicine request it should take them to make prescripiton page with medicine and patinet already filled in
 - users should be able to see if thier request is waiting to be reviewed, approved or denied
+-
