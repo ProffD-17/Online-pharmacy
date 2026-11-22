@@ -17,12 +17,24 @@ Example account:
 I get cream for my acne on repeat prescription every two weeks. There is a pharmacy 5 minutes walk from me but you cannot order the prescription there, instead I have to go to a different town to ask the recepionist at the doctors to order it for me and then pick it up at the pharmacy a few days later. This is a recurring inconvenience and I feel there should be a easier way to do this. The NHS do have an app but it doesnt work for my area. I have started to make an example app that lets patients order prescriptions online.
 
 ## Features
+### Patients
 - Make an account/login
 - Change account information
 - View different medicines
 - View information on medicines
+- Request medicine
+- View your prescriptions
 - Order prescriptions
-- Prescribe medicine to patients(Doctors only)
+- View your past orders
+- View the status of your orders
+### Pharmacists
+- Everything above and:
+- Mark orders as completed/uncompleted
+- View order history for anyone
+### Doctors
+- Everything above and:
+- Prescribe medicine to patients
+- View and approve/deny medicine requests
 
 ## Database 
 I used a database I found online for the information on medicines. I was originally using a database from databasesample.com but the information was inacurate so I switched to https://github.com/WSAyan/medicinedb. I also added my own tables and altered the original database slightly.
@@ -47,9 +59,10 @@ I used:
 
 ## Notes for reviwers
 I included the password to change a users role in the terra submision.
+This is an update on last weeks project. I asked on terra-help about deploying a new demo for this week and they said to just deploy this weeks but if you need the demo for week 4 let me know and I will figure out how to get that hosted online.
 
-## Tasks for next week
-- make medicine shop to allow users to buy medicines(probably not because my db doesnt have prices)
-- when doc aproves medicine request it should take them to make prescripiton page with medicine and patinet already filled in
-- users should be able to see if thier request is waiting to be reviewed, approved or denied
--
+## Possible future improvements
+- Add medicine shop to allow users to buy general medicines(Would have to maybe switch db because the one I'm using doesnt have prices)
+- Contact section
+- Users should be able to see if thier request is waiting to be reviewed, approved or denied on account page instead of just checking if the prescription exists
+- Sort review requests page into waiting to be reviewed, approved, and denied
