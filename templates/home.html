@@ -15,33 +15,29 @@
             <div class="col mt-2">
                 <a class="btn btn-primary w-100 h-100" href="/account">Account</a>
             </div>
-            {% if role == 'doctor' %}
-            <div class="col mt-2">
-                <a class="btn btn-primary w-100 h-100" href="/make_prescription">Prescribe medicine</a>
-            </div>
             <div class="col mt-2">
                 <a href="/request_medicine" class="btn btn-primary">Request medicine</a>
             </div>
-            {% endif %}
             <div class="col mt-2">
                 <a class="btn btn-primary w-100 h-100" href="/my_prescriptions">My prescriptions</a>
+            </div>
+            <div class="col mt-2">
+                <a class="btn btn-primary w-100 h-100" href="/order_history">Order history</a>
             </div>
             {% if role == 'doctor' or role == 'pharmacist' %}
             <div class="col mt-2">
                 <a class="btn btn-primary w-100 h-100" href="/manage_orders">Manage orders</a>
             </div>
-            <div class="col mt-2">
-                <a class="btn btn-primary w-100 h-100" href="/order_history">Order history</a>
-            </div>
                 {% if role == 'doctor' %}
                     <div class="col mt-2">
                         <a href="/review_medicine_requests" class="btn btn-primary w-100 h-100">Rewiew medicine requests</a>
                     </div>
+                    <div class="col mt-2">
+                        <a class="btn btn-primary w-100 h-100" href="/make_prescription">Prescribe medicine</a>
+                    </div>
                 {% endif %}
             {% endif %}
-
         </div>
-        
     </div>
     
     

@@ -1,5 +1,5 @@
 # Online pharmacy
-Online pharmacy is a template for creating a website for patients to order thier prescriptions online.
+Online pharmacy is a imaginary pharmacy for patients to order thier prescriptions online.
 
 ## How to use
 Deployed online using Railway at https://online-pharmacy-production.up.railway.app/
